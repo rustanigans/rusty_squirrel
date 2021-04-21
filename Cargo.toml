@@ -1,0 +1,16 @@
+[package]
+name = "rusty_squirrel"
+version = "0.1.0"
+authors = ["Tzian <1164336+Tzian@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+exchange = { git = "https://github.com/rustanigans/exchange.git", branch="develop"}
+
+mysql = "20.1.0"
+anyhow = "1.0"
+
+# date/time(required)
+chrono = { version = "0.4.19", features = ["serde"] }
