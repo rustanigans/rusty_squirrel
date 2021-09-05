@@ -1,5 +1,5 @@
 [package]
-name = "rusty-squirrel"
+name = "rusty_squirrel"
 version = "0.1.0"
 authors = ["Tzian <1164336+Tzian@users.noreply.github.com>"]
 edition = "2018"
