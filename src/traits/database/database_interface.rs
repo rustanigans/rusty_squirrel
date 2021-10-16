@@ -6,5 +6,5 @@ use crate::traits::insert::insert_interface::InsertInterface;
 use crate::traits::update::update_interface::UpdateInterface;
 
 // Just a marker trait so we can coerce to a `dyn DatabaseInterface<T>` and use all the above trait fns
-pub trait DatabaseInterface<T: Insertable + Updatable + Send + Sync>: QueryInterface<T> + DeleteInterface<T> + InsertInterface<T> + UpdateInterface<T>
+pub trait DatabaseInterface<T: Insertable + Updatable>: QueryInterface<T> + DeleteInterface<T> + InsertInterface<T> + UpdateInterface<T>
 {}
