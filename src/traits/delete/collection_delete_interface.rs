@@ -2,7 +2,7 @@ use crate::traits::table::Table;
 use crate::traits::database::get_database::GetDatabase;
 
 
-pub trait CollectionDeleteInterface<T: Table> : GetDatabase<T>
+pub trait CollectionDeleteInterface<T: Table + Send + Sync> : GetDatabase<T>
 {
     fn delete_by_id(&self, id: u32) -> anyhow::Result<()>
     {

@@ -1,6 +1,6 @@
 use crate::traits::{query::collection_query_interface::CollectionQueryInterface, table::Table};
 
-pub trait TableCreate<T: Table>: CollectionQueryInterface<T>
+pub trait TableCreate<T: Table + Send + Sync>: CollectionQueryInterface<T>
 {
     fn create_table_statement(&self) -> String;
     fn create_new_table(&self) -> anyhow::Result<()>

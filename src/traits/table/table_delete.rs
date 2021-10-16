@@ -1,6 +1,6 @@
 use crate::traits::{query::collection_query_interface::CollectionQueryInterface, table::Table};
 
-pub trait TableDelete<T: Table>: CollectionQueryInterface<T>
+pub trait TableDelete<T: Table + Send + Sync>: CollectionQueryInterface<T>
 {
     fn delete_table(&self) -> anyhow::Result<()>
     {

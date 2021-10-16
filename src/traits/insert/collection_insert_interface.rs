@@ -1,7 +1,7 @@
 use crate::traits::{database::get_database::GetDatabase, insert::insertable::Insertable,
                     table::Table};
 
-pub trait CollectionInsertInterface<T: Table + Insertable>: GetDatabase<T> // + QueryInterface<T>
+pub trait CollectionInsertInterface<T: Table + Insertable + Send + Sync>: GetDatabase<T> // + QueryInterface<T>
 {
     fn insert(&self, item: T, check_expression: Option<&str>) -> anyhow::Result<u32>
     {

@@ -1,6 +1,6 @@
 use crate::traits::table::Table;
 
-pub trait QueryInterface<T: Table>
+pub trait QueryInterface<T: Table + Send + Sync>
 {
     fn query_drop(&self, statement: &str) -> anyhow::Result<()>;
 

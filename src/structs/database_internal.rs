@@ -33,11 +33,11 @@ impl DatabaseInternal
     }
 }
 
-impl<T: Table + Insertable + Updatable> DatabaseInterface<T> for DatabaseInternal
+impl<T: Table + Insertable + Updatable + Send + Sync> DatabaseInterface<T> for DatabaseInternal
 {
 }
 
-impl<T: Table + Insertable> InsertInterface<T> for DatabaseInternal
+impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInternal
 {
     fn insert(&self, item: &T, check_expression: Option<&str>) -> anyhow::Result<u32>
     {
@@ -69,7 +69,7 @@ impl<T: Table + Insertable> InsertInterface<T> for DatabaseInternal
     }
 }
 
-impl<T: Table + Updatable> UpdateInterface<T> for DatabaseInternal
+impl<T: Table + Updatable + Send + Sync> UpdateInterface<T> for DatabaseInternal
 {
     // TODO: can we do this a better way
     fn update_by_id(&self, id: u32, items: Vec<(String, String)>) -> anyhow::Result<()>
@@ -88,7 +88,7 @@ impl<T: Table + Updatable> UpdateInterface<T> for DatabaseInternal
     }
 }
 
-impl<T: Table> QueryInterface<T> for DatabaseInternal
+impl<T: Table + Send + Sync> QueryInterface<T> for DatabaseInternal
 {
     fn query_drop(&self, statement: &str) -> anyhow::Result<()>
     {
@@ -120,7 +120,7 @@ impl<T: Table> QueryInterface<T> for DatabaseInternal
     }
 }
 
-impl<T: Table> DeleteInterface<T> for DatabaseInternal
+impl<T: Table + Send + Sync> DeleteInterface<T> for DatabaseInternal
 {
     fn delete_by_id(&self, id: u32) -> anyhow::Result<()>
     {

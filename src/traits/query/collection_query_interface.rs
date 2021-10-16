@@ -2,7 +2,7 @@ use crate::traits::table::Table;
 use crate::traits::database::get_database::GetDatabase;
 
 
-pub trait CollectionQueryInterface<T: Table> : GetDatabase<T>
+pub trait CollectionQueryInterface<T: Table + Send + Sync> : GetDatabase<T>
 {
     fn query_drop(&self, statement: &str) -> anyhow::Result<()>
     {
