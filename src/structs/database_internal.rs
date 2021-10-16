@@ -51,7 +51,7 @@ impl<T: Table + Insertable> InsertInterface<T> for DatabaseInternal
         }
 
         self.get_connection()
-            .exec_drop(T::insert_into_statement(T::INSERT_STMT), item.to_params())?;
+            .exec_drop(T::insert_into_statement(T::INSERT_EXPRESSION), item.to_params())?;
         if self.get_connection().affected_rows() == 1
         {
             Ok(self.get_connection().last_insert_id() as u32)
