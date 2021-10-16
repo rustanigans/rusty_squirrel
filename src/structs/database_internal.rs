@@ -8,8 +8,9 @@ use anyhow::*;
 use mysql::{prelude::Queryable, Pool, PooledConn};
 use std::sync::{Mutex, MutexGuard};
 
-const URL: &str =
-    "mysql://tz:sN%5EFtc%5EmpMN27J@trade-bot-db1.cbdfs5u4tcer.ap-northeast-1.rds.amazonaws.com/";
+//const URL: &str =  "mysql://tz:sN%5EFtc%5EmpMN27J@trade-bot-db1.cbdfs5u4tcer.ap-northeast-1.rds.amazonaws.com/";
+//pub const TRADE_DB_URL: &str = "mysql://rust:RustSql$*948163275@192.168.1.10:3306/Trading_DB";
+
 
 pub struct DatabaseInternal
 {
@@ -18,12 +19,11 @@ pub struct DatabaseInternal
 
 impl DatabaseInternal
 {
-    pub fn new(database_name: &str) -> Self
+    pub fn new(database_url: &str) -> Self
     {
-        let url = URL.to_string() + database_name;
-
-        Self {
-            connection: Mutex::new(Pool::new(url).unwrap().get_conn().unwrap())
+        Self
+        {
+            connection: Mutex::new(Pool::new(database_url).unwrap().get_conn().unwrap())
         }
     }
 
