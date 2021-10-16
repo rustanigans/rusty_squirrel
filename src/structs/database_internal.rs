@@ -1,16 +1,12 @@
-use crate::traits::{database::database_interface::DatabaseInterface,
-                    delete::delete_interface::DeleteInterface,
-                    insert::{insert_interface::InsertInterface, insertable::Insertable},
-                    query::query_interface::QueryInterface,
-                    table::Table,
-                    update::{updatable::Updatable, update_interface::UpdateInterface}};
+use crate::traits::*;
 use anyhow::*;
 use mysql::{prelude::Queryable, Pool, PooledConn};
 use std::sync::{Mutex, MutexGuard};
 
-//const URL: &str =  "mysql://tz:sN%5EFtc%5EmpMN27J@trade-bot-db1.cbdfs5u4tcer.ap-northeast-1.rds.amazonaws.com/";
-//pub const TRADE_DB_URL: &str = "mysql://rust:RustSql$*948163275@192.168.1.10:3306/Trading_DB";
-
+//const URL: &str =
+// "mysql://tz:sN%5EFtc%5EmpMN27J@trade-bot-db1.cbdfs5u4tcer.ap-northeast-1.rds.
+// amazonaws.com/"; pub const TRADE_DB_URL: &str =
+// "mysql://rust:RustSql$*948163275@192.168.1.10:3306/Trading_DB";
 
 pub struct DatabaseInternal
 {
@@ -21,8 +17,7 @@ impl DatabaseInternal
 {
     pub fn new(database_url: &str) -> Self
     {
-        Self
-        {
+        Self {
             connection: Mutex::new(Pool::new(database_url).unwrap().get_conn().unwrap())
         }
     }
@@ -50,8 +45,10 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
             }
         }
 
-        self.get_connection()
-            .exec_drop(T::insert_into_statement(T::INSERT_EXPRESSION), item.to_params())?;
+        self.get_connection().exec_drop(
+            T::insert_into_statement(T::INSERT_EXPRESSION),
+            item.to_params()
+        )?;
         if self.get_connection().affected_rows() == 1
         {
             Ok(self.get_connection().last_insert_id() as u32)

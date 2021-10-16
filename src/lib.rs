@@ -1,39 +1,63 @@
 #![allow(clippy::suspicious_else_formatting)]
 mod structs;
-mod traits
+pub mod traits
 {
-    pub mod table;
-    pub mod taker;
-    pub mod database
+    mod table;
+    mod taker;
+    mod database
     {
-        pub mod database_interface;
-        pub mod get_database;
+        mod database_interface;
+        mod get_database;
+
+        pub use database_interface::*;
+        pub use get_database::*;
     }
-    pub mod query
+    mod query
     {
-        pub mod collection_query_interface;
-        pub mod query_interface;
+        mod collection_query_interface;
+        mod query_interface;
+
+        pub use collection_query_interface::*;
+        pub use query_interface::*;
     }
-    pub mod insert
+    mod insert
     {
-        pub mod collection_insert_interface;
-        pub mod insertable;
-        pub mod insert_interface;
+        mod collection_insert_interface;
+        mod insert_interface;
+        mod insertable;
+
+        pub use collection_insert_interface::*;
+        pub use insert_interface::*;
+        pub use insertable::*;
     }
-    pub mod update
+    mod update
     {
-        pub mod collection_update_interface;
-        pub mod updatable;
-        pub mod update_interface;
+        mod collection_update_interface;
+        mod updatable;
+        mod update_interface;
+
+        pub use collection_update_interface::*;
+        pub use updatable::*;
+        pub use update_interface::*;
     }
-    pub mod delete
+    mod delete
     {
-        pub mod collection_delete_interface;
-        pub mod delete_interface;
+        mod collection_delete_interface;
+        mod delete_interface;
+
+        pub use collection_delete_interface::*;
+        pub use delete_interface::*;
     }
+
+    pub use database::*;
+    pub use delete::*;
+    pub use insert::*;
+    pub use query::*;
+    pub use table::*;
+    pub use taker::*;
+    pub use update::*;
 }
 
 pub(crate) const MYSQL_DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
-pub use structs::*;
-pub use traits::*;
+pub use structs::database_internal::DatabaseInternal;
