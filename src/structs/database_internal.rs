@@ -33,7 +33,7 @@ impl DatabaseInternal
     }
 }
 
-impl<T: Table + Insertable + Updatable> DatabaseInterface<T> for DatabaseInternal
+impl<T: Table + Insertable + Updatable + Send + Sync> DatabaseInterface<T> for DatabaseInternal
 {
 }
 
