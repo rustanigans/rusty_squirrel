@@ -1,10 +1,10 @@
-use mysql::prelude::FromValue;
-use std::convert::{TryFrom, TryInto};
-use mysql::{FromRowError, Row};
-use mysql::chrono::{DateTime, Utc, TimeZone};
 use crate::MYSQL_DATE_FORMAT;
+use mysql::{chrono::{DateTime, TimeZone, Utc},
+            prelude::FromValue,
+            FromRowError, Row};
+use std::convert::{TryFrom, TryInto};
 
-pub trait Taker
+pub trait Taker: Send + Sync
 {
     fn take_hinted<T: FromValue>(&mut self, name: &str) -> Result<T, FromRowError>;
     fn take_enum<T: TryFrom<usize>>(&mut self, name: &str) -> Result<T, FromRowError>;
@@ -35,7 +35,7 @@ impl Taker for Row
                 .as_str(),
             MYSQL_DATE_FORMAT
         )
-           .map_err(|_| FromRowError(self.clone()))
+        .map_err(|_| FromRowError(self.clone()))
     }
 
     fn take_date_time_option(&mut self, name: &str) -> Result<Option<DateTime<Utc>>, FromRowError>
@@ -45,7 +45,7 @@ impl Taker for Row
             .ok_or_else(|| FromRowError(self.clone()))?
             .map(|x| {
                 Utc.datetime_from_str(x.as_str(), MYSQL_DATE_FORMAT)
-                   .unwrap()
+                    .unwrap()
             }))
     }
 }

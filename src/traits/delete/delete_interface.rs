@@ -1,6 +1,6 @@
 use crate::traits::table::Table;
 
-pub trait DeleteInterface<T: Table + Send + Sync>
+pub trait DeleteInterface<T: Table>: Send + Sync
 {
     fn delete_by_id(&self, id: u32) -> anyhow::Result<()>;
 

@@ -1,7 +1,7 @@
 use crate::traits::{database::get_database::GetDatabase, table::Table,
                     update::updatable::Updatable};
 
-pub trait CollectionUpdateInterface<T: Table + Updatable + Send + Sync>: GetDatabase<T>
+pub trait CollectionUpdateInterface<T: Table + Updatable>: GetDatabase<T> + Send + Sync
 {
     fn update_by_id(&self, id: u32, items: Vec<(String, String)>) -> anyhow::Result<()>
     {

@@ -1,8 +1,7 @@
-use crate::traits::database::database_interface::DatabaseInterface;
-use crate::traits::table::Table;
-use std::sync::{Mutex, Arc};
+use crate::traits::{database::database_interface::DatabaseInterface, table::Table};
+use std::sync::{Arc, Mutex};
 
-pub trait GetDatabase<T: Table>
+pub trait GetDatabase<T: Table>: Send + Sync
 {
     fn get_db(&self) -> Arc<Mutex<dyn DatabaseInterface<T>>>;
 }

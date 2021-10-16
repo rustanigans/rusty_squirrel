@@ -1,6 +1,6 @@
 use crate::traits::table::Table;
 
-pub trait Insertable: Table
+pub trait Insertable: Table + Send + Sync
 {
     const INSERT_EXPRESSION: &'static str;
 

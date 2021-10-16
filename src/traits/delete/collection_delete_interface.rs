@@ -1,8 +1,6 @@
-use crate::traits::table::Table;
-use crate::traits::database::get_database::GetDatabase;
+use crate::traits::{database::get_database::GetDatabase, table::Table};
 
-
-pub trait CollectionDeleteInterface<T: Table + Send + Sync> : GetDatabase<T>
+pub trait CollectionDeleteInterface<T: Table>: GetDatabase<T> + Send + Sync
 {
     fn delete_by_id(&self, id: u32) -> anyhow::Result<()>
     {
@@ -11,6 +9,9 @@ pub trait CollectionDeleteInterface<T: Table + Send + Sync> : GetDatabase<T>
 
     fn delete_by_expression(&self, expression: &str) -> anyhow::Result<u64>
     {
-        self.get_db().lock().unwrap().delete_by_expression(expression)
+        self.get_db()
+            .lock()
+            .unwrap()
+            .delete_by_expression(expression)
     }
 }

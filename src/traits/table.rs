@@ -3,7 +3,7 @@ pub mod table_delete;
 
 use mysql::prelude::FromRow;
 
-pub trait Table: FromRow
+pub trait Table: FromRow + Send + Sync
 {
     const TABLE_NAME: &'static str;
 

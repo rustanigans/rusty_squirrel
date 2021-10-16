@@ -1,8 +1,6 @@
-use crate::traits::table::Table;
-use crate::traits::database::get_database::GetDatabase;
+use crate::traits::{database::get_database::GetDatabase, table::Table};
 
-
-pub trait CollectionQueryInterface<T: Table + Send + Sync> : GetDatabase<T>
+pub trait CollectionQueryInterface<T: Table>: GetDatabase<T> + Send + Sync
 {
     fn query_drop(&self, statement: &str) -> anyhow::Result<()>
     {
@@ -21,6 +19,9 @@ pub trait CollectionQueryInterface<T: Table + Send + Sync> : GetDatabase<T>
 
     fn query_by_expression(&self, expression: &str) -> anyhow::Result<Vec<T>>
     {
-        self.get_db().lock().unwrap().query_by_expression(expression)
+        self.get_db()
+            .lock()
+            .unwrap()
+            .query_by_expression(expression)
     }
 }
