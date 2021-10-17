@@ -20,5 +20,3 @@ use_field_init_shorthand = true
 blank_lines_upper_bound = 1
 fn_args_layout = "Tall"
 max_width = 120
-
-
