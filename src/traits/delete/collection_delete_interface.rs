@@ -1,17 +1,15 @@
 use crate::traits::{GetDatabase, Table};
+use anyhow::Result;
 
 pub trait CollectionDeleteInterface<T: Table>: GetDatabase<T> + Send + Sync
 {
-    fn delete_by_id(&self, id: u32) -> anyhow::Result<()>
+    fn delete_by_id(&self, id: u32) -> Result<()>
     {
         self.get_db().lock().unwrap().delete_by_id(id)
     }
 
-    fn delete_by_expression(&self, expression: &str) -> anyhow::Result<u64>
+    fn delete_by_expression(&self, expression: &str) -> Result<u64>
     {
-        self.get_db()
-            .lock()
-            .unwrap()
-            .delete_by_expression(expression)
+        self.get_db().lock().unwrap().delete_by_expression(expression)
     }
 }
