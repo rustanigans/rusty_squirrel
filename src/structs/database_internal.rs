@@ -27,11 +27,11 @@ impl<T: Table + Insertable + Updatable + Send + Sync> DatabaseInterface<T> for D
 
 impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInternal
 {
-    fn insert(&self, item: &T, check_expression: Option<&str>) -> Result<u32>
+    fn insert(&self, item: &T, indexing_statement: Option<&str>) -> Result<u32>
     {
-        if check_expression.is_some()
+        if indexing_statement.is_some()
         {
-            let result: Vec<T> = self.query_by_expression(check_expression.unwrap())?;
+            let result: Vec<T> = self.query_by_expression(indexing_statement.unwrap())?;
             if !result.is_empty()
             {
                 bail!("Failed To Insert - Entry Already Exists")
@@ -50,9 +50,9 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
         }
     }
 
-    fn insert_and_fetch(&self, item: &T, check_expression: Option<&str>) -> Result<T>
+    fn insert_and_fetch(&self, item: &T, indexing_statement: Option<&str>) -> Result<T>
     {
-        let id = self.insert(item, check_expression)?;
+        let id = self.insert(item, indexing_statement)?;
         self.query_by_id(id)
     }
 }
