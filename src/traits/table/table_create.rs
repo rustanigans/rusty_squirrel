@@ -1,4 +1,4 @@
-use crate::traits::{query::collection_query_interface::CollectionQueryInterface, table::Table};
+use crate::traits::{CollectionQueryInterface, Table};
 
 pub trait TableCreate<T: Table>: CollectionQueryInterface<T> + Send + Sync
 {

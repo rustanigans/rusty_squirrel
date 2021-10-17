@@ -1,5 +1,4 @@
-use crate::traits::{database::get_database::GetDatabase, insert::insertable::Insertable,
-                    table::Table};
+use crate::traits::{GetDatabase, Insertable, Table};
 
 pub trait CollectionInsertInterface<T: Table + Insertable>: GetDatabase<T> + Send + Sync
 // + QueryInterface<T>

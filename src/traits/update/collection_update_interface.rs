@@ -1,5 +1,4 @@
-use crate::traits::{database::get_database::GetDatabase, table::Table,
-                    update::updatable::Updatable};
+use crate::traits::{GetDatabase, Table, Updatable};
 
 pub trait CollectionUpdateInterface<T: Table + Updatable>: GetDatabase<T> + Send + Sync
 {

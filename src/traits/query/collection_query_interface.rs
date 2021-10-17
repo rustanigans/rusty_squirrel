@@ -1,4 +1,4 @@
-use crate::traits::{database::get_database::GetDatabase, table::Table};
+use crate::traits::{GetDatabase, Table};
 
 pub trait CollectionQueryInterface<T: Table>: GetDatabase<T> + Send + Sync
 {
