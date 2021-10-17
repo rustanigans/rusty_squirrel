@@ -3,7 +3,7 @@ use anyhow::Result;
 
 pub trait CollectionDeleteInterface<T: Table>: GetDatabase<T> + Send + Sync
 {
-    fn delete_by_id(&self, id: u32) -> Result<()>
+    fn delete_by_id(&self, id: u64) -> Result<()>
     {
         self.get_db().lock().unwrap().delete_by_id(id)
     }

@@ -3,7 +3,7 @@ use anyhow::Result;
 
 pub trait CollectionInsertInterface<T: Table + Insertable>: GetDatabase<T> + Send + Sync // + QueryInterface<T>
 {
-    fn insert(&self, item: &T, indexing_statement: Option<&str>) -> Result<u32>
+    fn insert(&self, item: &T, indexing_statement: Option<&str>) -> Result<u64>
     {
         self.get_db().lock().unwrap().insert(&item, indexing_statement)
     }

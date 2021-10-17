@@ -27,7 +27,7 @@ impl<T: Table + Insertable + Updatable + Send + Sync> DatabaseInterface<T> for D
 
 impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInternal
 {
-    fn insert(&self, item: &T, indexing_statement: Option<&str>) -> Result<u32>
+    fn insert(&self, item: &T, indexing_statement: Option<&str>) -> Result<u64>
     {
         if indexing_statement.is_some()
         {
@@ -42,7 +42,7 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
             .exec_drop(T::insert_into_statement(T::INSERT_EXPRESSION), item.to_params())?;
         if self.get_connection().affected_rows() == 1
         {
-            Ok(self.get_connection().last_insert_id() as u32)
+            Ok(self.get_connection().last_insert_id() as u64)
         }
         else
         {
@@ -60,7 +60,7 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
 impl<T: Table + Updatable + Send + Sync> UpdateInterface<T> for DatabaseInternal
 {
     // TODO: can we do this a better way
-    fn update_by_id(&self, id: u32, items: Vec<(String, String)>) -> Result<()>
+    fn update_by_id(&self, id: u64, items: Vec<(String, String)>) -> Result<()>
     {
         self.get_connection()
             .query_drop(T::update_by_id_statement(id, items))
@@ -92,7 +92,7 @@ impl<T: Table + Send + Sync> QueryInterface<T> for DatabaseInternal
             .map_err(|e| anyhow!("{}", e))
     }
 
-    fn query_by_id(&self, id: u32) -> Result<T>
+    fn query_by_id(&self, id: u64) -> Result<T>
     {
         self.get_connection()
             .query_first(T::query_by_id_statement(id))?
@@ -108,7 +108,7 @@ impl<T: Table + Send + Sync> QueryInterface<T> for DatabaseInternal
 
 impl<T: Table + Send + Sync> DeleteInterface<T> for DatabaseInternal
 {
-    fn delete_by_id(&self, id: u32) -> Result<()>
+    fn delete_by_id(&self, id: u64) -> Result<()>
     {
         self.get_connection().query_drop(T::delete_from_by_id_statement(id))?;
 

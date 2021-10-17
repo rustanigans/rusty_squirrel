@@ -13,7 +13,7 @@ pub trait CollectionQueryInterface<T: Table>: GetDatabase<T> + Send + Sync
         self.get_db().lock().unwrap().query_all()
     }
 
-    fn query_by_id(&self, id: u32) -> Result<T>
+    fn query_by_id(&self, id: u64) -> Result<T>
     {
         self.get_db().lock().unwrap().query_by_id(id)
     }

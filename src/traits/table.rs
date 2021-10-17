@@ -12,7 +12,7 @@ pub trait Table: FromRow + Send + Sync
         format!("SELECT * FROM {}", Self::TABLE_NAME)
     }
 
-    fn query_by_id_statement(id: u32) -> String
+    fn query_by_id_statement(id: u64) -> String
     {
         format!("SELECT * FROM {} WHERE id = {}", Self::TABLE_NAME, id)
     }
@@ -27,7 +27,7 @@ pub trait Table: FromRow + Send + Sync
         format!("INSERT INTO {} {}", Self::TABLE_NAME, expression)
     }
 
-    fn delete_from_by_id_statement(id: u32) -> String
+    fn delete_from_by_id_statement(id: u64) -> String
     {
         format!("DELETE FROM {} WHERE id = {}", Self::TABLE_NAME, id)
     }
@@ -37,7 +37,7 @@ pub trait Table: FromRow + Send + Sync
         format!("DELETE FROM {} WHERE {}", Self::TABLE_NAME, expression)
     }
 
-    fn update_by_id_statement(id: u32, mut items: Vec<(String, String)>) -> String
+    fn update_by_id_statement(id: u64, mut items: Vec<(String, String)>) -> String
     {
         let updates = items.drain(..)
                            .map(|x| format!("{} = {}", x.0, x.1))
