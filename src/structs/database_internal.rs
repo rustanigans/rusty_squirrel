@@ -3,6 +3,7 @@ use anyhow::{anyhow, bail, Result};
 use mysql::{prelude::Queryable, Pool, PooledConn};
 use std::sync::{Mutex, MutexGuard};
 
+#[derive(Clone)]
 pub struct DatabaseInternal
 {
     connection_pool: Pool
@@ -22,6 +23,7 @@ impl DatabaseInternal
             .map_err(|e| anyhow!("Unable to get pooled connection: {}", e))
     }
 }
+
 impl<T: Table + Insertable + Updatable + Send + Sync> DatabaseInterface<T> for DatabaseInternal
 {
 }
