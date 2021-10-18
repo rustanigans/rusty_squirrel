@@ -5,22 +5,23 @@ use std::sync::{Mutex, MutexGuard};
 
 pub struct DatabaseInternal
 {
-    connection: Mutex<PooledConn>
+    connection_pool: Pool
 }
 
 impl DatabaseInternal
 {
-    pub fn new(database_url: &str) -> Self
+    pub fn new(database_url: &str) -> Result<Self>
     {
-        Self { connection: Mutex::new(Pool::new(database_url).unwrap().get_conn().unwrap()) }
+        Ok(Self { connection_pool: Pool::new(database_url)? })
     }
 
-    fn get_connection(&self) -> MutexGuard<PooledConn>
+    fn get_connection(&self) -> Result<PooledConn>
     {
-        self.connection.lock().unwrap()
+        self.connection_pool
+            .get_conn()
+            .map_err(|e| anyhow!("Unable to get pooled connection: {}", e))
     }
 }
-
 impl<T: Table + Insertable + Updatable + Send + Sync> DatabaseInterface<T> for DatabaseInternal
 {
 }

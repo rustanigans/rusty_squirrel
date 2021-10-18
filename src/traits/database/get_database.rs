@@ -3,5 +3,5 @@ use std::sync::{Arc, Mutex};
 
 pub trait GetDatabase<T: Table>: Send + Sync
 {
-    fn get_db(&self) -> Arc<Mutex<dyn DatabaseInterface<T>>>;
+    fn get_db(&self) -> &dyn DatabaseInterface<T>;
 }
