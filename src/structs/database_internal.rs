@@ -1,7 +1,6 @@
 use crate::traits::*;
 use anyhow::{anyhow, bail, Result};
 use mysql::{prelude::Queryable, Pool, PooledConn};
-use std::sync::{Mutex, MutexGuard};
 
 #[derive(Clone)]
 pub struct DatabaseInternal
@@ -41,11 +40,11 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
             }
         }
 
-        self.get_connection()
+        self.get_connection()?
             .exec_drop(T::insert_into_statement(T::INSERT_EXPRESSION), item.to_params())?;
-        if self.get_connection().affected_rows() == 1
+        if self.get_connection()?.affected_rows() == 1
         {
-            Ok(self.get_connection().last_insert_id() as u64)
+            Ok(self.get_connection()?.last_insert_id() as u64)
         }
         else
         {
@@ -65,10 +64,10 @@ impl<T: Table + Updatable + Send + Sync> UpdateInterface<T> for DatabaseInternal
     // TODO: can we do this a better way
     fn update_by_id(&self, id: u64, items: Vec<(String, String)>) -> Result<()>
     {
-        self.get_connection()
+        self.get_connection()?
             .query_drop(T::update_by_id_statement(id, items))
             .map_err(|e| anyhow!("{}", e))?;
-        if !self.get_connection().affected_rows() == 1
+        if !self.get_connection()?.affected_rows() == 1
         {
             bail!("Could Not Update Item @ id - {}", id)
         }
@@ -83,21 +82,21 @@ impl<T: Table + Send + Sync> QueryInterface<T> for DatabaseInternal
 {
     fn query_drop(&self, statement: &str) -> Result<()>
     {
-        self.get_connection()
+        self.get_connection()?
             .query_drop(statement)
             .map_err(|e| anyhow!("{}", e))
     }
 
     fn query_all(&self) -> Result<Vec<T>>
     {
-        self.get_connection()
+        self.get_connection()?
             .query(T::query_all_statement())
             .map_err(|e| anyhow!("{}", e))
     }
 
     fn query_by_id(&self, id: u64) -> Result<T>
     {
-        self.get_connection()
+        self.get_connection()?
             .query_first(T::query_by_id_statement(id))?
             .ok_or_else(|| anyhow!("Entry {} NOT Found! 404", id))
     }
@@ -105,7 +104,7 @@ impl<T: Table + Send + Sync> QueryInterface<T> for DatabaseInternal
     fn query_by_expression(&self, expression: &str) -> Result<Vec<T>>
     {
         let statement = T::query_by_expression_statement(expression);
-        self.get_connection().query(statement).map_err(|e| anyhow!("{}", e))
+        self.get_connection()?.query(statement).map_err(|e| anyhow!("{}", e))
     }
 }
 
@@ -113,9 +112,9 @@ impl<T: Table + Send + Sync> DeleteInterface<T> for DatabaseInternal
 {
     fn delete_by_id(&self, id: u64) -> Result<()>
     {
-        self.get_connection().query_drop(T::delete_from_by_id_statement(id))?;
+        self.get_connection()?.query_drop(T::delete_from_by_id_statement(id))?;
 
-        if self.get_connection().affected_rows() == 1
+        if self.get_connection()?.affected_rows() == 1
         {
             Ok(())
         }
@@ -128,9 +127,9 @@ impl<T: Table + Send + Sync> DeleteInterface<T> for DatabaseInternal
     fn delete_by_expression(&self, expression: &str) -> Result<u64>
     {
         let statement = T::delete_by_expression_statement(expression);
-        self.get_connection()
+        self.get_connection()?
             .query_drop(statement)
             .map_err(|e| anyhow!("{}", e))?;
-        Ok(self.get_connection().affected_rows())
+        Ok(self.get_connection()?.affected_rows())
     }
 }
