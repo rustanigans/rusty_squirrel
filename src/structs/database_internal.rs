@@ -42,6 +42,10 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
 
         self.get_connection()?
             .exec_drop(T::insert_into_statement(T::INSERT_EXPRESSION), item.to_params())?;
+
+        println!("affected rows = {:?}", self.get_connection()?.affected_rows());
+        println!("last insert id = {:?}", self.get_connection()?.last_insert_id() as u64);
+
         if self.get_connection()?.affected_rows() == 1
         {
             Ok(self.get_connection()?.last_insert_id() as u64)
