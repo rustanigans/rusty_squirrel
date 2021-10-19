@@ -8,7 +8,7 @@ pub trait CollectionDeleteInterface<T: Table>: GetDatabase<T> + Send + Sync
         self.get_db().delete_by_id(id)
     }
 
-    fn delete_by_expression(&self, expression: &str) -> Result<u64>
+    fn delete_by_expression(&self, expression: &str) -> Result<()>
     {
         self.get_db().delete_by_expression(expression)
     }
