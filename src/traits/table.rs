@@ -40,17 +40,21 @@ pub trait Table: FromRow + Send + Sync
     fn update_by_id_statement(id: u64, mut items: Vec<(String, String)>) -> String
     {
         println!("length = {}", items.len());
-        println!("changes = {}, {}", items[0].0, items[0].1);
 
         // let updates = items.drain(..)
         //                    .map(|x| format!("{} = {}", x.0, x.1))
         //                    .collect::<Vec<String>>()
         //                    .join(", ");
 
+        let column_name = &items[0].0;
+        let value = &items[0].1;
+
+        println!("items = {}, {}", column_name, value);
+
         format!("UPDATE {} SET {} = {} WHERE id = {}",
                 Self::TABLE_NAME,
-                items[0].0,
-                items[0].1,
+                column_name,
+                value,
                 id)
     }
 }
