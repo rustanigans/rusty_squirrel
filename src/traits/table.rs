@@ -40,7 +40,7 @@ pub trait Table: FromRow + Send + Sync
     fn update_by_id_statement(id: u64, mut items: Vec<(String, String)>) -> String
     {
         let updates = items.drain(..)
-                           .map(|x| format!("{} = {}", x.0, x.1))
+                           .map(|x| format!("`{}` = '{}'", x.0, x.1))
                            .collect::<Vec<String>>()
                            .join(", ");
         println!("updates {}", updates);
