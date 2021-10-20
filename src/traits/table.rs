@@ -42,10 +42,10 @@ pub trait Table: FromRow + Send + Sync
         println!("length = {}", items.len());
         println!("changes = {}, {}", items[0].0, items[0].1);
 
-        let updates = items.drain(..)
-                           .map(|x| format!("{} = {}", x.0, x.1))
-                           .collect::<Vec<String>>()
-                           .join(", ");
+        // let updates = items.drain(..)
+        //                    .map(|x| format!("{} = {}", x.0, x.1))
+        //                    .collect::<Vec<String>>()
+        //                    .join(", ");
 
         format!("UPDATE {} SET {} = {} WHERE id = {}",
                 Self::TABLE_NAME,
