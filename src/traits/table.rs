@@ -44,6 +44,10 @@ pub trait Table: FromRow + Send + Sync
                            .collect::<Vec<String>>()
                            .join(", ");
 
-        format!("UPDATE {} SET {} WHERE id = {}", Self::TABLE_NAME, &updates, id)
+        format!("UPDATE {} SET {} = {} WHERE id = {}",
+                Self::TABLE_NAME,
+                items[0].0,
+                items[0].1,
+                id)
     }
 }
