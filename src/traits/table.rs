@@ -45,6 +45,9 @@ pub trait Table: FromRow + Send + Sync
                            .join(", ");
         println!("updates {}", updates);
 
-        format!("UPDATE {} SET {} WHERE id = {}", Self::TABLE_NAME, &updates, id)
+        let s = format!("UPDATE {} SET {} WHERE id = {}", Self::TABLE_NAME, &updates, id);
+
+        println!("statement is {}", s);
+        s
     }
 }
