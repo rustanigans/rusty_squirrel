@@ -43,11 +43,7 @@ pub trait Table: FromRow + Send + Sync
                            .map(|x| format!("`{}` = '{}'", x.0, x.1))
                            .collect::<Vec<String>>()
                            .join(", ");
-        println!("updates {}", updates);
 
-        let s = format!("UPDATE {} SET {} WHERE id = {}", Self::TABLE_NAME, &updates, id);
-
-        println!("statement is {}", s);
-        s
+        format!("UPDATE {} SET {} WHERE id = {}", Self::TABLE_NAME, &updates, id)
     }
 }
