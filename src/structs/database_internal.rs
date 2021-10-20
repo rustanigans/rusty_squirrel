@@ -105,8 +105,7 @@ impl<T: Table + Updatable + Send + Sync> UpdateInterface<T> for DatabaseInternal
                 }
                 else
                 {
-                    println!("Could Not Update Item @ id - {}", id);
-                    bail!("")
+                    bail!("Error - Failed To Update Item")
                 }
             }
             Err(e) =>
@@ -144,7 +143,7 @@ impl<T: Table + Send + Sync> QueryInterface<T> for DatabaseInternal
                 {
                     None =>
                     {
-                        bail!("Entry Not Found")
+                        bail!("Error - Query Failed - Item Not Found")
                     }
                     Some(p) => Ok(p)
                 }
@@ -194,7 +193,7 @@ fn check_insert_result_for_id<T: Insertable>(result: Result<()>, conn: &PooledCo
             }
             else
             {
-                bail!("Insert Failed")
+                bail!("Error - Failed To Insert Item")
             }
         }
         Err(e) =>
@@ -226,7 +225,7 @@ fn check_insert_result<T: Insertable>(result: Result<()>, conn: &mut PooledConn)
             }
             else
             {
-                bail!("Insert Failed")
+                bail!("Error - Failed To Insert Item")
             }
         }
         Err(e) =>
