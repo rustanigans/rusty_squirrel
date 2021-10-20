@@ -138,7 +138,17 @@ impl<T: Table + Send + Sync> QueryInterface<T> for DatabaseInternal
         let result: Result<Option<T>> = internal_query_by_id(&id_statement, &mut conn);
         match result
         {
-            Ok(o) => Ok(o.unwrap()),
+            Ok(o) =>
+            {
+                match o
+                {
+                    None =>
+                    {
+                        bail!("Entry Not Found")
+                    }
+                    Some(p) => Ok(p)
+                }
+            }
             Err(e) =>
             {
                 bail!(e)
