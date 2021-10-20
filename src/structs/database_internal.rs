@@ -99,18 +99,13 @@ impl<T: Table + Updatable + Send + Sync> UpdateInterface<T> for DatabaseInternal
             Ok(_) =>
             {
                 let aff_rows = conn.affected_rows();
-                if aff_rows == 2
+                if aff_rows == 1
                 {
                     Ok(())
                 }
                 else if aff_rows == 0
                 {
                     bail!("Did Not Update Item @ id - {} - Supplied Field Values Were Not Different",
-                          id)
-                }
-                else if aff_rows == 1
-                {
-                    bail!("Did Not Update Item @ id - {} - Item Did Not Exist - Inserted Instead",
                           id)
                 }
                 else
