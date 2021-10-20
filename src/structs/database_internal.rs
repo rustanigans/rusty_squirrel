@@ -103,14 +103,10 @@ impl<T: Table + Updatable + Send + Sync> UpdateInterface<T> for DatabaseInternal
                 {
                     Ok(())
                 }
-                else if aff_rows == 0
-                {
-                    bail!("Did Not Update Item @ id - {} - Supplied Field Values Were Not Different",
-                          id)
-                }
                 else
                 {
-                    bail!("Could Not Update Item @ id - {}", id)
+                    println!("Could Not Update Item @ id - {}", id);
+                    bail!("")
                 }
             }
             Err(e) =>
