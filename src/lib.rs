@@ -57,6 +57,10 @@ pub mod traits
     pub use taker::*;
     pub use update::*;
 }
+pub mod macros
+{
+    pub mod enum_u8;
+}
 
 pub(crate) const MYSQL_DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
