@@ -7,6 +7,7 @@ use std::convert::{TryFrom, TryInto};
 pub trait Taker: Send + Sync
 {
     fn take_hinted<T: FromValue>(&mut self, name: &str) -> Result<T, FromRowError>;
+    fn take_hinted_option<T: FromValue>(&mut self, name: &str) -> Result<Option<T>, FromRowError>;
     fn take_enum<T: TryFrom<u8>>(&mut self, name: &str) -> Result<T, FromRowError>;
     fn take_date_time(&mut self, name: &str) -> Result<DateTime<Utc>, FromRowError>;
     fn take_date_time_option(&mut self, name: &str) -> Result<Option<DateTime<Utc>>, FromRowError>;
@@ -16,6 +17,12 @@ impl Taker for Row
     fn take_hinted<T: FromValue>(&mut self, name: &str) -> Result<T, FromRowError>
     {
         self.take::<T, &str>(name).ok_or_else(|| FromRowError(self.clone()))
+    }
+
+    fn take_hinted_option<T: FromValue>(&mut self, name: &str) -> Result<Option<T>, FromRowError>
+    {
+        self.take::<Option<T>, &str>(name)
+            .ok_or_else(|| FromRowError(self.clone()))
     }
 
     fn take_enum<T: TryFrom<u8>>(&mut self, name: &str) -> Result<T, FromRowError>
