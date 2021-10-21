@@ -62,6 +62,6 @@ pub mod macros
     pub mod enum_u8;
 }
 
-pub(crate) const MYSQL_DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
+pub const MYSQL_DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
 pub use structs::database_internal::DatabaseInternal;
