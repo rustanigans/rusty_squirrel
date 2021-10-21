@@ -18,3 +18,5 @@ macro_rules! impl_try_from_for_enum {
         }
     }
 }
+
+pub use impl_try_from_for_enum
