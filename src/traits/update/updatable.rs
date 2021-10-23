@@ -16,9 +16,6 @@ pub trait Updatable: Insertable + Send + Sync
         {
             panic!("Params were not of named variety");
         }
-        format!("UPDATE {} SET {} WHERE id = {};",
-                Self::TABLE_NAME,
-                set_stmts.join(","),
-                id)
+        Self::update_by_id_statement(id, &set_stmts.join(","))
     }
 }
