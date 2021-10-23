@@ -36,35 +36,6 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
         check_insert_result_for_id::<T>(internal_insert(item, &insert_statement, &mut conn), &conn)
     }
 
-    fn update_item_by_id(&self, id: u64, item: &T) -> Result<u64>
-    {
-        let mut conn = self.get_connection()?;
-        let id_statement = T::query_by_id_statement(id);
-        let result: Result<Option<T>> = internal_query_by_id(&id_statement, &mut conn);
-        match result
-        {
-            Ok(o) =>
-            {
-                match o
-                {
-                    None =>
-                    {
-                        bail!("Error - Cannot Update - Item Not Found")
-                    }
-                    Some(_) =>
-                    {
-                        let insert_statement = T::insert_into_on_duplicate_statement(T::INSERT_EXPRESSION);
-                        check_insert_result_for_id::<T>(internal_insert(item, &insert_statement, &mut conn), &conn)
-                    }
-                }
-            }
-            Err(e) =>
-            {
-                bail!(e)
-            }
-        }
-    }
-
     fn insert_and_return_id_with_indexing_check(&self, item: &T, indexing_statement: Option<&str>) -> Result<u64>
     {
         let mut conn = self.get_connection()?;
@@ -113,6 +84,42 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
         else
         {
             bail!("Cannot Insert Item With Indexing Check - Indexing Statement Is None")
+        }
+    }
+
+    fn update_item_by_id(&self, id: u64, item: &T) -> Result<u64>
+    {
+        let mut conn = self.get_connection()?;
+        let id_statement = T::query_by_id_statement(id);
+        println!("id statement {:?}", id_statement);
+
+        println!("rusty - item id = {}", id);
+
+        let result: Result<Option<T>> = internal_query_by_id(&id_statement, &mut conn);
+        match result
+        {
+            Ok(o) =>
+            {
+                match o
+                {
+                    None =>
+                    {
+                        bail!("Error - Cannot Update - Item Not Found")
+                    }
+                    Some(_) =>
+                    {
+                        let insert_statement = T::insert_into_on_duplicate_statement(T::INSERT_EXPRESSION);
+
+                        println!("insert statement {:?}", insert_statement);
+
+                        check_insert_result_for_id::<T>(internal_insert(item, &insert_statement, &mut conn), &conn)
+                    }
+                }
+            }
+            Err(e) =>
+            {
+                bail!(e)
+            }
         }
     }
 }
