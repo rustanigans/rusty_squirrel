@@ -4,10 +4,10 @@ use mysql::prelude::Queryable;
 
 pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase<T> + Send + Sync
 {
-    fn update_column_by_id(&self, id: u64, items: Vec<(String, String)>) -> Result<()>
+    fn update_column_by_id(&self, id: u64, changes: Vec<(String, String)>) -> Result<()>
     {
         let mut conn = self.get_connection()?;
-        let id_statement = T::update_column_by_id_statement(id, items);
+        let id_statement = T::update_column_by_id_statement(id, changes);
 
         let result = conn.query_drop(id_statement);
 
