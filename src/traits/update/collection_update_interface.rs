@@ -8,7 +8,7 @@ pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase<T> + Send + Sync
         self.get_db().update_column_by_id(id, changes)
     }
 
-    fn update_item_by_id(&self, id: u64, item: T) -> Result<()>
+    fn update_item_by_id(&self, id: u64, item: &T) -> Result<()>
     {
         self.get_db().query_drop(&item.update_item_statement(id))
     }
