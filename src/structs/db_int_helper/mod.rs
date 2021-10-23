@@ -13,7 +13,7 @@ pub fn internal_insert<T: Insertable>(item: &T, insert_statement: &str, conn: &m
     }
 }
 
-pub fn internal_update<T: Updatable>(update_statement: &str, conn: &mut PooledConn) -> Result<()>
+pub fn internal_update_column<T: Updatable>(update_statement: &str, conn: &mut PooledConn) -> Result<()>
 {
     match conn.query_drop(update_statement)
     {

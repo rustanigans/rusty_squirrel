@@ -36,6 +36,35 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
         check_insert_result_for_id::<T>(internal_insert(item, &insert_statement, &mut conn), &conn)
     }
 
+    fn update_item_by_id(&self, id: u64, item: &T) -> Result<u64>
+    {
+        let mut conn = self.get_connection()?;
+        let id_statement = T::query_by_id_statement(id);
+        let result: Result<Option<T>> = internal_query_by_id(&id_statement, &mut conn);
+        match result
+        {
+            Ok(o) =>
+            {
+                match o
+                {
+                    None =>
+                    {
+                        bail!("Error - Cannot Update - Item Not Found")
+                    }
+                    Some(_) =>
+                    {
+                        let insert_statement = T::insert_into_on_duplicate_statement(T::INSERT_EXPRESSION);
+                        check_insert_result_for_id::<T>(internal_insert(item, &insert_statement, &mut conn), &conn)
+                    }
+                }
+            }
+            Err(e) =>
+            {
+                bail!(e)
+            }
+        }
+    }
+
     fn insert_and_return_id_with_indexing_check(&self, item: &T, indexing_statement: Option<&str>) -> Result<u64>
     {
         let mut conn = self.get_connection()?;
@@ -90,12 +119,12 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
 
 impl<T: Table + Updatable + Send + Sync> UpdateInterface<T> for DatabaseInternal
 {
-    fn update_by_id(&self, id: u64, items: Vec<(String, String)>) -> Result<()>
+    fn update_column_by_id(&self, id: u64, items: Vec<(String, String)>) -> Result<()>
     {
         let mut conn = self.get_connection()?;
-        let id_statement = T::update_by_id_statement(id, items);
+        let id_statement = T::update_column_by_id_statement(id, items);
 
-        match internal_update::<T>(&id_statement, &mut conn)
+        match internal_update_column::<T>(&id_statement, &mut conn)
         {
             Ok(_) =>
             {
