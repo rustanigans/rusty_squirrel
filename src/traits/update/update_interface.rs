@@ -1,5 +1,5 @@
-use crate::traits::Table;
+use crate::traits::Updatable;
 
-pub trait UpdateInterface<T: Table>: Send + Sync
+pub trait UpdateInterface<T: Updatable>: Send + Sync
 {
 }

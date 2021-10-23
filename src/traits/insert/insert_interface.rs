@@ -1,5 +1,5 @@
-use crate::traits::Table;
+use crate::traits::Insertable;
 
-pub trait InsertInterface<T: Table>: Send + Sync
+pub trait InsertInterface<T: Insertable>: Send + Sync
 {
 }
