@@ -106,13 +106,13 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
                     {
                         bail!("Error - Cannot Update - Item Not Found")
                     }
-                    Some(_) =>
+                    Some(p) =>
                     {
-                        let update_by_id_statement = T::update_by_id_statement(id, T::UPDATE_EXPRESSION);
-
+                        let update_by_id_statement = p.replace_statement(id);
                         println!("insert statement {:?}", update_by_id_statement);
 
-                        check_insert_result_for_id::<T>(internal_update_item(item, &update_by_id_statement, &mut conn), &conn)
+                        check_insert_result_for_id::<T>(internal_update_item(item, &update_by_id_statement, &mut conn),
+                                                        &conn)
                     }
                 }
             }
