@@ -27,11 +27,12 @@ pub trait Table: FromRow + Send + Sync
         format!("INSERT INTO {} {}", Self::TABLE_NAME, expression)
     }
 
-    fn insert_into_on_duplicate_statement(expression: &str) -> String
+    fn insert_into_on_duplicate_statement(id: u64, expression: &str) -> String
     {
-        format!("INSERT INTO {} {} ON DUPLICATE KEY UPDATE",
+        format!("INSERT INTO {} {} ON DUPLICATE KEY UPDATE id={}",
                 Self::TABLE_NAME,
-                expression)
+                expression,
+                id)
     }
 
     fn delete_from_by_id_statement(id: u64) -> String

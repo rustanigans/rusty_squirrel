@@ -108,7 +108,7 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
                     }
                     Some(_) =>
                     {
-                        let insert_statement = T::insert_into_on_duplicate_statement(T::INSERT_EXPRESSION);
+                        let insert_statement = T::insert_into_on_duplicate_statement(id, T::INSERT_EXPRESSION);
 
                         println!("insert statement {:?}", insert_statement);
 
