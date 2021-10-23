@@ -108,11 +108,11 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
                     }
                     Some(_) =>
                     {
-                        let insert_statement = T::update_by_id_statement(id, T::INSERT_EXPRESSION);
+                        let update_by_id_statement = T::update_by_id_statement(id, T::UPDATE_EXPRESSION);
 
-                        println!("insert statement {:?}", insert_statement);
+                        println!("insert statement {:?}", update_by_id_statement);
 
-                        check_insert_result_for_id::<T>(internal_insert(item, &insert_statement, &mut conn), &conn)
+                        check_insert_result_for_id::<T>(internal_update_item(item, &update_by_id_statement, &mut conn), &conn)
                     }
                 }
             }

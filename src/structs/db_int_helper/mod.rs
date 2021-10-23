@@ -25,6 +25,18 @@ pub fn internal_update_column<T: Updatable>(update_statement: &str, conn: &mut P
     }
 }
 
+pub fn internal_update_item<T: Insertable>(item: &T, update_statement: &str, conn: &mut PooledConn) -> Result<()>
+{
+    match conn.exec_drop(update_statement, item.to_params())
+    {
+        Ok(o) => Ok(o),
+        Err(e) =>
+        {
+            bail!(e)
+        }
+    }
+}
+
 pub fn internal_query_by_id<T: FromRow>(id_statement: &str, conn: &mut PooledConn) -> Result<Option<T>>
 {
     let result: Result<Option<T>, mysql::Error> = conn.query_first(id_statement);
