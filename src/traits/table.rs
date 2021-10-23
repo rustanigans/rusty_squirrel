@@ -54,4 +54,9 @@ pub trait Table: FromRow + Send + Sync
 
         format!("UPDATE {} SET {} WHERE id = {}", Self::TABLE_NAME, &updates, id)
     }
+
+    fn update_by_id_statement(id: u64, expression: &str) -> String
+    {
+        format!("UPDATE {} SET {} WHERE id = {}", Self::TABLE_NAME, expression, id)
+    }
 }
