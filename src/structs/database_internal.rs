@@ -86,40 +86,6 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
             bail!("Cannot Insert Item With Indexing Check - Indexing Statement Is None")
         }
     }
-
-    fn update_item_by_id(&self, id: u64, item: &T) -> Result<u64>
-    {
-        let mut conn = self.get_connection()?;
-        let id_statement = T::query_by_id_statement(id);
-
-        let result: Result<Option<T>> = internal_query_by_id(&id_statement, &mut conn);
-        match result
-        {
-            Ok(o) =>
-            {
-                match o
-                {
-                    None =>
-                    {
-                        bail!("Error - Cannot Update - Item Not Found")
-                    }
-                    Some(p) =>
-                    {
-                        let replace_statement = p.replace_statement(id);
-                        println!("in rusty function - replace statement = {:?}",
-                                 item.replace_statement(id));
-
-                        check_insert_result_for_id::<T>(internal_update_item(item, &replace_statement, &mut conn),
-                                                        &conn)
-                    }
-                }
-            }
-            Err(e) =>
-            {
-                bail!(e)
-            }
-        }
-    }
 }
 
 impl<T: Table + Updatable + Send + Sync> UpdateInterface<T> for DatabaseInternal

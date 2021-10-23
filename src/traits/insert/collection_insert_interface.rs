@@ -24,9 +24,4 @@ pub trait CollectionInsertInterface<T: Table + Insertable>: GetDatabase<T> + Sen
         self.get_db()
             .insert_and_fetch_with_indexing_check(&item, indexing_statement)
     }
-
-    fn update_item_by_id(&self, id: u64, item: &T) -> Result<u64>
-    {
-        self.get_db().update_item_by_id(id, item)
-    }
 }
