@@ -91,9 +91,6 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
     {
         let mut conn = self.get_connection()?;
         let id_statement = T::query_by_id_statement(id);
-        println!("id statement {:?}", id_statement);
-
-        println!("rusty - item id = {}", id);
 
         let result: Result<Option<T>> = internal_query_by_id(&id_statement, &mut conn);
         match result
@@ -108,10 +105,11 @@ impl<T: Table + Insertable + Send + Sync> InsertInterface<T> for DatabaseInterna
                     }
                     Some(p) =>
                     {
-                        let update_by_id_statement = p.replace_statement(id);
-                        println!("insert statement {:?}", update_by_id_statement);
+                        let replace_statement = p.replace_statement(id);
+                        println!("in rusty function - replace statement = {:?}",
+                                 item.replace_statement(id));
 
-                        check_insert_result_for_id::<T>(internal_update_item(item, &update_by_id_statement, &mut conn),
+                        check_insert_result_for_id::<T>(internal_update_item(item, &replace_statement, &mut conn),
                                                         &conn)
                     }
                 }
