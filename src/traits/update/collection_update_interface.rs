@@ -7,11 +7,12 @@ pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase<T> + Send + Sync
     fn update_column_by_id(&self, id: u64, changes: Vec<(String, String)>) -> Result<()>
     {
         let mut conn = self.get_connection()?;
-        let id_statement = T::update_column_by_id_statement(id, changes);
+        let update_column_by_id_statement = T::update_column_by_id_statement(id, changes);
+        let query_by_id_statement = T::query_by_id_statement(id);
 
-        let result = conn.query_drop(id_statement);
+        let result: mysql::error::Result<Option<T>> = conn.query_first(&query_by_id_statement);
 
-        check_update_result(result, &mut conn)
+        self.check_query_result(result, &update_column_by_id_statement, conn)
     }
 
     fn update_item_by_id(&self, id: u64, item: &T) -> Result<()>
@@ -23,6 +24,15 @@ pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase<T> + Send + Sync
 
         let result: mysql::error::Result<Option<T>> = conn.query_first(&query_by_id_statement);
 
+        self.check_query_result(result, update_item_by_id_statement, conn)
+    }
+
+    fn check_query_result(&self,
+                          result: mysql::error::Result<Option<T>>,
+                          statement: &str,
+                          mut conn: PooledConn)
+                          -> Result<()>
+    {
         match result
         {
             Ok(o) =>
@@ -31,12 +41,11 @@ pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase<T> + Send + Sync
                 {
                     None =>
                     {
-                        bail!("Error - Query Failed - Item Not Found")
+                        bail!("Error - Cannot Update - Item Not Found")
                     }
                     Some(_) =>
                     {
-                        let result1 = conn.query_drop(update_item_by_id_statement);
-
+                        let result1 = conn.query_drop(statement);
                         check_update_result(result1, &mut conn)
                     }
                 }
