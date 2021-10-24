@@ -3,7 +3,7 @@ use mysql::Params;
 
 pub trait Updatable: Insertable + Send + Sync
 {
-    fn update_item_statement(&self, id: u64) -> String
+    fn update_item_by_id_statement(&self, id: u64) -> String
     {
         let mut set_expressions = vec![];
         if let Params::Named(params) = self.to_params()
