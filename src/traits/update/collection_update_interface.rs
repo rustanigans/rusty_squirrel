@@ -17,19 +17,29 @@ pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase<T> + Send + Sync
     fn update_item_by_id(&self, id: u64, item: &T) -> Result<()>
     {
         let mut conn = self.get_connection()?;
-        let id_statement = &item.update_item_by_id_statement(id);
 
+        let update_item_by_id_statement = &item.update_item_by_id_statement(id);
         let query_by_id_statement = T::query_by_id_statement(id);
-        println!("statement {:?}", query_by_id_statement);
-        let result = conn.query_drop(query_by_id_statement);
-        assert!(result.is_err());
+
+        let result: mysql::error::Result<Option<T>> = conn.query_first(&query_by_id_statement);
+
         match result
         {
-            Ok(_) =>
+            Ok(o) =>
             {
-                let result1 = conn.query_drop(id_statement);
+                match o
+                {
+                    None =>
+                    {
+                        bail!("Error - Query Failed - Item Not Found")
+                    }
+                    Some(_) =>
+                    {
+                        let result1 = conn.query_drop(update_item_by_id_statement);
 
-                check_update_result(result1, &mut conn)
+                        check_update_result(result1, &mut conn)
+                    }
+                }
             }
             Err(e) =>
             {
