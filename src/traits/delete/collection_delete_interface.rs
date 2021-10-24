@@ -7,7 +7,7 @@ pub trait CollectionDeleteInterface<T: Table>: GetDatabase<T> + Send + Sync
     fn delete_by_id(&self, id: u64) -> Result<()>
     {
         let mut conn = self.get_connection()?;
-        let id_statement = T::delete_from_by_id_statement(id);
+        let id_statement = T::delete_by_id_statement(id);
 
         let result = conn.query_drop(id_statement);
         check_delete_result(result, &mut conn)
