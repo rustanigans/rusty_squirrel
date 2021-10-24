@@ -20,7 +20,9 @@ pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase<T> + Send + Sync
         let id_statement = &item.update_item_by_id_statement(id);
 
         let query_by_id_statement = T::query_by_id_statement(id);
+        println!("statement {:?}", query_by_id_statement);
         let result = conn.query_drop(query_by_id_statement);
+        assert!(result.is_err());
         match result
         {
             Ok(_) =>
