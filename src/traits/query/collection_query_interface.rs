@@ -20,6 +20,8 @@ pub trait CollectionQueryInterface<T: Table>: GetDatabase<T> + Send + Sync
     {
         let mut conn = self.get_connection()?;
         let id_statement = T::query_by_id_statement(id);
+        println!("id statement {:?}", id_statement);
+
         let result: mysql::error::Result<Option<T>> = conn.query_first(&id_statement);
         match result
         {
@@ -36,6 +38,7 @@ pub trait CollectionQueryInterface<T: Table>: GetDatabase<T> + Send + Sync
             }
             Err(e) =>
             {
+                println!("error {:?}", e);
                 bail!(e)
             }
         }
