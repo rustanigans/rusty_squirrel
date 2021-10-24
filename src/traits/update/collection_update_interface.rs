@@ -19,9 +19,21 @@ pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase<T> + Send + Sync
         let mut conn = self.get_connection()?;
         let id_statement = &item.update_item_by_id_statement(id);
 
-        let result = conn.query_drop(id_statement);
+        let query_by_id_statement = T::query_by_id_statement(id);
+        let result = conn.query_drop(query_by_id_statement);
+        match result
+        {
+            Ok(_) =>
+            {
+                let result1 = conn.query_drop(id_statement);
 
-        check_update_result(result, &mut conn)
+                check_update_result(result1, &mut conn)
+            }
+            Err(e) =>
+            {
+                bail!(e)
+            }
+        }
     }
 }
 
