@@ -42,6 +42,14 @@ pub trait CollectionQueryInterface<T: Table>: GetDatabase<T> + Send + Sync
         }
     }
 
+    fn query_by_id_unchecked(&self, id: u64) -> Result<Option<T>>
+    {
+        let mut conn = self.get_connection()?;
+        let id_statement = T::query_by_id_statement(id);
+
+        conn.query_first(&id_statement).map_err(|e| e.into())
+    }
+
     fn query_by_expression(&self, expression: &str) -> Result<Vec<T>>
     {
         let mut conn = self.get_connection()?;
