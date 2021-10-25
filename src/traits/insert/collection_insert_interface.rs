@@ -10,7 +10,6 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase<T> + Send + Sync
         let insert_statement = T::insert_into_statement(T::INSERT_EXPRESSION);
 
         let result = conn.exec_drop(&insert_statement, item.to_params());
-
         check_insert_result_for_id(result, &conn)
     }
 
@@ -25,11 +24,9 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase<T> + Send + Sync
             {
                 bail!("Failed To Insert - Entry Already Exists, Use Update Instead")
             }
-
             let insert_statement = T::insert_into_statement(T::INSERT_EXPRESSION);
 
             let result = conn.exec_drop(insert_statement, item.to_params());
-
             check_insert_result_for_id(result, &conn)
         }
         else
@@ -44,7 +41,6 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase<T> + Send + Sync
         let insert_statement = T::insert_into_statement(T::INSERT_EXPRESSION);
 
         let result = conn.exec_drop(insert_statement, item.to_params());
-
         check_insert_result(result, &mut conn)
     }
 
@@ -59,11 +55,9 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase<T> + Send + Sync
             {
                 bail!("Failed To Insert - Entry Already Exists, Use Update Instead")
             }
-
             let insert_statement = T::insert_into_statement(T::INSERT_EXPRESSION);
 
             let result = conn.exec_drop(&insert_statement, item.to_params());
-
             check_insert_result(result, &mut conn)
         }
         else
@@ -104,8 +98,8 @@ fn check_insert_result<T: Table>(result: mysql::error::Result<()>, conn: &mut Po
             if conn.affected_rows() == 1
             {
                 let id = conn.last_insert_id() as u64;
-
                 let id_statement = T::query_by_id_statement(id);
+
                 let result: mysql::error::Result<Option<T>> = conn.query_first(id_statement);
                 result.map_err(|e| e.into()).map(|x| x.unwrap())
             }

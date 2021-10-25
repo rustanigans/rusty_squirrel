@@ -22,7 +22,6 @@ pub trait CollectionQueryInterface<T: Table>: GetDatabase<T> + Send + Sync
         let id_statement = T::query_by_id_statement(id);
 
         let result: mysql::error::Result<Option<T>> = conn.query_first(&id_statement);
-
         match result
         {
             Ok(o) =>
