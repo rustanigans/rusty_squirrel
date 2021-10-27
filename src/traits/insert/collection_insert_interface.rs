@@ -7,7 +7,7 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase<T> + Send + Sync
     fn insert_and_return_id(&self, item: &T) -> Result<u64>
     {
         let mut conn = self.get_connection()?;
-        let insert_statement = T::insert_into_statement(T::INSERT_EXPRESSION);
+        let insert_statement = T::insert_into_statement(&item.insert_expr());
 
         let result = conn.exec_drop(&insert_statement, item.to_params());
         check_insert_result_for_id(result, &conn)
@@ -24,7 +24,7 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase<T> + Send + Sync
             {
                 bail!("Failed To Insert - Entry Already Exists, Use Update Instead")
             }
-            let insert_statement = T::insert_into_statement(T::INSERT_EXPRESSION);
+            let insert_statement = T::insert_into_statement(&item.insert_expr());
 
             let result = conn.exec_drop(insert_statement, item.to_params());
             check_insert_result_for_id(result, &conn)
@@ -38,7 +38,7 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase<T> + Send + Sync
     fn insert_and_fetch(&self, item: &T) -> Result<T>
     {
         let mut conn = self.get_connection()?;
-        let insert_statement = T::insert_into_statement(T::INSERT_EXPRESSION);
+        let insert_statement = T::insert_into_statement(&item.insert_expr());
 
         let result = conn.exec_drop(insert_statement, item.to_params());
         check_insert_result(result, &mut conn)
@@ -55,7 +55,7 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase<T> + Send + Sync
             {
                 bail!("Failed To Insert - Entry Already Exists, Use Update Instead")
             }
-            let insert_statement = T::insert_into_statement(T::INSERT_EXPRESSION);
+            let insert_statement = T::insert_into_statement(&item.insert_expr());
 
             let result = conn.exec_drop(&insert_statement, item.to_params());
             check_insert_result(result, &mut conn)
