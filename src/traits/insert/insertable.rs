@@ -22,6 +22,6 @@ pub trait Insertable: Table + Send + Sync
         {
             panic!("Params were not of named variety");
         }
-        format!("({}) VALUES ({})", field_names_a.join(","), field_names_b.join(","))
+        format!("({}) VALUES ({})", field_names_a.join(", "), field_names_b.join(", "))
     }
 }
