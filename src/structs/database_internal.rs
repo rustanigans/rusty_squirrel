@@ -11,7 +11,7 @@ impl DatabaseInternal
     pub fn new(database_url: &str) -> Result<Self>
     {
         let options = mysql::Opts::from_url(database_url)?;
-        Ok(Self { connection_pool: Pool::new(options)? })
+        Ok(Self { connection_pool: Pool::new_manual(1, 10, options)? })
     }
 
     pub fn get_connection(&self) -> Result<PooledConn>
