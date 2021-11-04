@@ -56,4 +56,11 @@ pub trait CollectionQueryInterface<T: Table>: GetDatabase<T> + Send + Sync
         let expression_statement = T::query_by_expression_statement(expression);
         conn.query(expression_statement).map_err(|e| e.into())
     }
+
+    fn query_first_by_expression(&self, expression: &str) -> Result<Option<T>>
+    {
+        let mut conn = self.get_connection()?;
+        let expression_statement = T::query_by_expression_statement(expression);
+        conn.query_first(expression_statement).map_err(|e| e.into())
+    }
 }
