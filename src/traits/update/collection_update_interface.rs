@@ -2,7 +2,7 @@ use crate::traits::{GetDatabase, Updatable};
 use anyhow::{bail, Result};
 use mysql::{error as my_err, prelude::Queryable, PooledConn};
 
-pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase<T> + Send + Sync
+pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase + Send + Sync
 {
     fn update_column_by_id(&self, id: u64, changes: Vec<(String, String)>) -> Result<()>
     {

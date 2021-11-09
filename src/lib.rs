@@ -4,6 +4,7 @@ pub mod traits
 {
     mod table;
     mod taker;
+    mod view;
     mod database
     {
         mod database_interface;
@@ -56,6 +57,7 @@ pub mod traits
     pub use table::*;
     pub use taker::*;
     pub use update::*;
+    pub use view::*;
 }
 pub mod macros
 {

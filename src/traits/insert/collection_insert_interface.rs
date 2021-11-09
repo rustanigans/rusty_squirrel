@@ -2,7 +2,7 @@ use crate::traits::{GetDatabase, Insertable, Table};
 use anyhow::{bail, Result};
 use mysql::{prelude::Queryable, PooledConn};
 
-pub trait CollectionInsertInterface<T: Insertable>: GetDatabase<T> + Send + Sync // + QueryInterface<T>
+pub trait CollectionInsertInterface<T: Insertable>: GetDatabase + Send + Sync // + QueryInterface<T>
 {
     fn insert_and_return_id(&self, item: &T) -> Result<u64>
     {

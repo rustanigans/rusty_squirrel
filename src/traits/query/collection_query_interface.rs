@@ -2,7 +2,7 @@ use crate::traits::{GetDatabase, Table};
 use anyhow::{bail, Result};
 use mysql::prelude::Queryable;
 
-pub trait CollectionQueryInterface<T: Table>: GetDatabase<T> + Send + Sync
+pub trait CollectionQueryInterface<T: Table>: GetDatabase + Send + Sync
 {
     fn query_drop(&self, statement: &str) -> Result<()>
     {

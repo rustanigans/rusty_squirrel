@@ -2,7 +2,7 @@ use crate::traits::{GetDatabase, Table};
 use anyhow::{bail, Result};
 use mysql::{prelude::Queryable, PooledConn};
 
-pub trait CollectionDeleteInterface<T: Table>: GetDatabase<T> + Send + Sync
+pub trait CollectionDeleteInterface<T: Table>: GetDatabase + Send + Sync
 {
     fn delete_by_id(&self, id: u64) -> Result<()>
     {
