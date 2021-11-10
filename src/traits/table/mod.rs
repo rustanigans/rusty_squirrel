@@ -1,7 +1,9 @@
-pub mod table_create;
-pub mod table_delete;
+mod table_create;
+mod table_delete;
 mod updatable;
 
+pub use table_create::*;
+pub use table_delete::*;
 pub use updatable::*;
 
 use crate::traits::View;
