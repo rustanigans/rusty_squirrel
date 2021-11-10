@@ -39,3 +39,7 @@ pub trait CollectionViewInterface<T: View>: GetDatabase
         conn.query_first(&id_statement).map_err(|e| e.into())
     }
 }
+
+impl<T: View, DB: GetDatabase> CollectionViewInterface<T> for DB
+{
+}
