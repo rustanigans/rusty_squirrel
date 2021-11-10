@@ -1,6 +1,6 @@
 #![allow(clippy::suspicious_else_formatting)]
 
-pub use structs::database_internal::SquirrelDatabase;
+pub use structs::database_internal::{SquirrelDatabase, SquirrelDatabaseConfig};
 // Backwards compatibility
 pub use SquirrelDatabase as DatabaseInternal;
 
