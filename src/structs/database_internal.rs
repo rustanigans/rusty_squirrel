@@ -1,4 +1,5 @@
 use super::*;
+use crate::traits::GetDatabase;
 
 #[derive(Clone)]
 pub struct DatabaseInternal
@@ -13,8 +14,11 @@ impl DatabaseInternal
         let options = mysql::Opts::from_url(database_url)?;
         Ok(Self { connection_pool: Pool::new_manual(1, 10, options)? })
     }
+}
 
-    pub fn get_connection(&self) -> Result<PooledConn>
+impl GetDatabase for DatabaseInternal
+{
+    fn get_connection(&self) -> Result<PooledConn>
     {
         self.connection_pool.get_conn().map_err(|e| e.into())
     }
