@@ -1,9 +1,9 @@
 use super::*;
 use crate::traits::Updatable;
 
-pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase
+pub trait CollectionUpdateInterface: GetDatabase
 {
-    fn update_column_by_id(&self, id: u64, changes: Vec<(String, String)>) -> Result<()>
+    fn update_column_by_id<T: Updatable>(&self, id: u64, changes: Vec<(String, String)>) -> Result<()>
     {
         let mut conn = self.get_connection()?;
         let update_column_by_id_statement = T::update_column_by_id_statement(id, changes);
@@ -14,7 +14,7 @@ pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase
         self.check_query_result(result, &update_column_by_id_statement, conn)
     }
 
-    fn update_item_by_id(&self, id: u64, item: &T) -> Result<()>
+    fn update_item_by_id<T: Updatable>(&self, id: u64, item: &T) -> Result<()>
     {
         let mut conn = self.get_connection()?;
 
@@ -26,11 +26,11 @@ pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase
         self.check_query_result(result, update_item_by_id_statement, conn)
     }
 
-    fn check_query_result(&self,
-                          result: mysql::error::Result<Option<T>>,
-                          stmt: &str,
-                          mut conn: PooledConn)
-                          -> Result<()>
+    fn check_query_result<T: Updatable>(&self,
+                                        result: mysql::error::Result<Option<T>>,
+                                        stmt: &str,
+                                        mut conn: PooledConn)
+                                        -> Result<()>
     {
         match result
         {
@@ -57,7 +57,7 @@ pub trait CollectionUpdateInterface<T: Updatable>: GetDatabase
     }
 }
 
-impl<T: Updatable, DB: GetDatabase> CollectionUpdateInterface<T> for DB
+impl<DB: GetDatabase> CollectionUpdateInterface for DB
 {
 }
 

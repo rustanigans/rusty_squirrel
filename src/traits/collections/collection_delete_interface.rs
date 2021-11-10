@@ -1,8 +1,8 @@
 use super::*;
 
-pub trait CollectionDeleteInterface<T: Table>: GetDatabase
+pub trait CollectionDeleteInterface: GetDatabase
 {
-    fn delete_by_id(&self, id: u64) -> Result<()>
+    fn delete_by_id<T: Table>(&self, id: u64) -> Result<()>
     {
         let mut conn = self.get_connection()?;
         let id_statement = T::delete_by_id_statement(id);
@@ -11,7 +11,7 @@ pub trait CollectionDeleteInterface<T: Table>: GetDatabase
         check_delete_result(result, &mut conn)
     }
 
-    fn delete_by_expression(&self, expression: &str) -> Result<()>
+    fn delete_by_expression<T: Table>(&self, expression: &str) -> Result<()>
     {
         let mut conn = self.get_connection()?;
         let expression_statement = T::delete_by_expression_statement(expression);
@@ -22,7 +22,7 @@ pub trait CollectionDeleteInterface<T: Table>: GetDatabase
     }
 }
 
-impl<T: Table, DB: GetDatabase> CollectionDeleteInterface<T> for DB
+impl<DB: GetDatabase> CollectionDeleteInterface for DB
 {
 }
 

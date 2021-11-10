@@ -1,9 +1,9 @@
 use super::*;
 use crate::traits::Updatable;
 
-pub trait CollectionInsertInterface<T: Updatable>: GetDatabase
+pub trait CollectionInsertInterface: GetDatabase
 {
-    fn insert_and_return_id(&self, item: &T) -> Result<u64>
+    fn insert_and_return_id<T: Updatable>(&self, item: &T) -> Result<u64>
     {
         let mut conn = self.get_connection()?;
         let insert_statement = T::insert_into_statement(&item.generate_insert_expr());
@@ -12,7 +12,10 @@ pub trait CollectionInsertInterface<T: Updatable>: GetDatabase
         check_insert_result_for_id(result, &conn)
     }
 
-    fn insert_and_return_id_with_indexing_check(&self, item: &T, indexing_statement: Option<&str>) -> Result<u64>
+    fn insert_and_return_id_with_indexing_check<T: Updatable>(&self,
+                                                              item: &T,
+                                                              indexing_statement: Option<&str>)
+                                                              -> Result<u64>
     {
         let mut conn = self.get_connection()?;
 
@@ -34,7 +37,7 @@ pub trait CollectionInsertInterface<T: Updatable>: GetDatabase
         }
     }
 
-    fn insert_and_fetch(&self, item: &T) -> Result<T>
+    fn insert_and_fetch<T: Updatable>(&self, item: &T) -> Result<T>
     {
         let mut conn = self.get_connection()?;
         let insert_statement = T::insert_into_statement(&item.generate_insert_expr());
@@ -43,7 +46,10 @@ pub trait CollectionInsertInterface<T: Updatable>: GetDatabase
         check_insert_result(result, &mut conn)
     }
 
-    fn insert_and_fetch_with_indexing_check(&self, item: &T, indexing_statement: Option<&str>) -> Result<T>
+    fn insert_and_fetch_with_indexing_check<T: Updatable>(&self,
+                                                          item: &T,
+                                                          indexing_statement: Option<&str>)
+                                                          -> Result<T>
     {
         let mut conn = self.get_connection()?;
 
@@ -66,7 +72,7 @@ pub trait CollectionInsertInterface<T: Updatable>: GetDatabase
     }
 }
 
-impl<T: Updatable, DB: GetDatabase> CollectionInsertInterface<T> for DB
+impl<DB: GetDatabase> CollectionInsertInterface for DB
 {
 }
 

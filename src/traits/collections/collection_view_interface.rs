@@ -1,16 +1,16 @@
 use super::*;
 use mysql::prelude::Queryable;
 
-pub trait CollectionViewInterface<T: View>: GetDatabase
+pub trait CollectionViewInterface: GetDatabase
 {
-    fn query_by_expression(&self, expression: &str) -> Result<Vec<T>>
+    fn query_by_expression<T: View>(&self, expression: &str) -> Result<Vec<T>>
     {
         let result = self.get_connection()?
                          .query(T::query_by_expression_statement(expression))?;
         Ok(result)
     }
 
-    fn query_by_id_unchecked(&self, id: u64) -> Result<Option<T>>
+    fn query_by_id_unchecked<T: View>(&self, id: u64) -> Result<Option<T>>
     {
         let mut conn = self.get_connection()?;
         let id_statement = T::query_by_id_statement(id);
@@ -18,13 +18,13 @@ pub trait CollectionViewInterface<T: View>: GetDatabase
         conn.query_first(&id_statement).map_err(|e| e.into())
     }
 
-    fn query_all(&self) -> Result<Vec<T>>
+    fn query_all<T: View>(&self) -> Result<Vec<T>>
     {
         let mut conn = self.get_connection()?;
         conn.query(T::query_all_statement()).map_err(|e| e.into())
     }
 
-    fn query_by_id(&self, id: u64) -> Result<T>
+    fn query_by_id<T: View>(&self, id: u64) -> Result<T>
     {
         let mut conn = self.get_connection()?;
         let id_statement = T::query_by_id_statement(id);
@@ -50,14 +50,14 @@ pub trait CollectionViewInterface<T: View>: GetDatabase
         }
     }
 
-    fn query_first_by_id(&self, id: u64) -> Result<Option<T>>
+    fn query_first_by_id<T: View>(&self, id: u64) -> Result<Option<T>>
     {
         let mut conn = self.get_connection()?;
         let expression_statement = T::query_by_id_statement(id);
         conn.query_first(expression_statement).map_err(|e| e.into())
     }
 
-    fn query_first_by_expression(&self, expression: &str) -> Result<Option<T>>
+    fn query_first_by_expression<T: View>(&self, expression: &str) -> Result<Option<T>>
     {
         let mut conn = self.get_connection()?;
         let expression_statement = T::query_by_expression_statement(expression);
@@ -65,6 +65,6 @@ pub trait CollectionViewInterface<T: View>: GetDatabase
     }
 }
 
-impl<T: View, DB: GetDatabase> CollectionViewInterface<T> for DB
+impl<DB: GetDatabase> CollectionViewInterface for DB
 {
 }
