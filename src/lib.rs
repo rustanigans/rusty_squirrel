@@ -1,8 +1,8 @@
 #![allow(clippy::suspicious_else_formatting)]
 
-pub use structs::database_internal::SquirellDatabase;
+pub use structs::database_internal::SquirrelDatabase;
 // Backwards compatibility
-pub use SquirellDatabase as DatabaseInternal;
+pub use SquirrelDatabase as DatabaseInternal;
 
 #[macro_use]
 extern crate anyhow;

@@ -2,12 +2,12 @@ use super::*;
 use crate::traits::GetDatabase;
 
 #[derive(Clone)]
-pub struct SquirellDatabase
+pub struct SquirrelDatabase
 {
     connection_pool: Pool
 }
 
-impl SquirellDatabase
+impl SquirrelDatabase
 {
     pub fn new(database_url: &str) -> Result<Self>
     {
@@ -16,7 +16,7 @@ impl SquirellDatabase
     }
 }
 
-impl GetDatabase for SquirellDatabase
+impl GetDatabase for SquirrelDatabase
 {
     fn get_connection(&self) -> Result<PooledConn>
     {
