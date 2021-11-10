@@ -1,13 +1,12 @@
-use crate::traits::{GetDatabase, Insertable, Table};
-use anyhow::{bail, Result};
-use mysql::{prelude::Queryable, PooledConn};
+use super::*;
+use crate::traits::Updatable;
 
-pub trait CollectionInsertInterface<T: Insertable>: GetDatabase + Send + Sync // + QueryInterface<T>
+pub trait CollectionInsertInterface<T: Updatable>: GetDatabase
 {
     fn insert_and_return_id(&self, item: &T) -> Result<u64>
     {
         let mut conn = self.get_connection()?;
-        let insert_statement = T::insert_into_statement(&item.insert_expr());
+        let insert_statement = T::insert_into_statement(&item.generate_insert_expr());
 
         let result = conn.exec_drop(&insert_statement, item.to_params());
         check_insert_result_for_id(result, &conn)
@@ -24,7 +23,7 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase + Send + Sync //
             {
                 bail!("Failed To Insert - Entry Already Exists, Use Update Instead")
             }
-            let insert_statement = T::insert_into_statement(&item.insert_expr());
+            let insert_statement = T::insert_into_statement(&item.generate_insert_expr());
 
             let result = conn.exec_drop(insert_statement, item.to_params());
             check_insert_result_for_id(result, &conn)
@@ -38,7 +37,7 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase + Send + Sync //
     fn insert_and_fetch(&self, item: &T) -> Result<T>
     {
         let mut conn = self.get_connection()?;
-        let insert_statement = T::insert_into_statement(&item.insert_expr());
+        let insert_statement = T::insert_into_statement(&item.generate_insert_expr());
 
         let result = conn.exec_drop(insert_statement, item.to_params());
         check_insert_result(result, &mut conn)
@@ -55,7 +54,7 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase + Send + Sync //
             {
                 bail!("Failed To Insert - Entry Already Exists, Use Update Instead")
             }
-            let insert_statement = T::insert_into_statement(&item.insert_expr());
+            let insert_statement = T::insert_into_statement(&item.generate_insert_expr());
 
             let result = conn.exec_drop(&insert_statement, item.to_params());
             check_insert_result(result, &mut conn)
@@ -65,6 +64,10 @@ pub trait CollectionInsertInterface<T: Insertable>: GetDatabase + Send + Sync //
             bail!("Cannot Insert Item With Indexing Check - Indexing Statement Is None")
         }
     }
+}
+
+impl<T: Updatable, DB: GetDatabase> CollectionInsertInterface<T> for DB
+{
 }
 
 fn check_insert_result_for_id(result: mysql::error::Result<()>, conn: &PooledConn) -> Result<u64>

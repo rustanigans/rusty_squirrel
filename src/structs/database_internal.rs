@@ -19,23 +19,3 @@ impl DatabaseInternal
         self.connection_pool.get_conn().map_err(|e| e.into())
     }
 }
-
-impl<T: Table + Send + Sync> DatabaseInterface<T> for DatabaseInternal
-{
-}
-
-impl<T: Table + Send + Sync> InsertInterface<T> for DatabaseInternal
-{
-}
-
-impl<T: Table + Send + Sync> UpdateInterface<T> for DatabaseInternal
-{
-}
-
-impl<T: Table + Send + Sync> QueryInterface<T> for DatabaseInternal
-{
-}
-
-impl<T: Table + Send + Sync> DeleteInterface<T> for DatabaseInternal
-{
-}

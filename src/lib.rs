@@ -1,63 +1,24 @@
 #![allow(clippy::suspicious_else_formatting)]
+
+pub use structs::database_internal::DatabaseInternal;
+
+#[macro_use]
+extern crate anyhow;
+
 mod structs;
 pub mod traits
 {
+    pub use collections::*;
+    pub use get_database::*;
+    pub use table::*;
+    pub use taker::*;
+    pub use view::*;
+
+    mod collections;
+    mod get_database;
     mod table;
     mod taker;
     mod view;
-    mod database
-    {
-        mod database_interface;
-        mod get_database;
-
-        pub use database_interface::*;
-        pub use get_database::*;
-    }
-    mod query
-    {
-        mod collection_query_interface;
-        mod query_interface;
-
-        pub use collection_query_interface::*;
-        pub use query_interface::*;
-    }
-    mod insert
-    {
-        mod collection_insert_interface;
-        mod insert_interface;
-        mod insertable;
-
-        pub use collection_insert_interface::*;
-        pub use insert_interface::*;
-        pub use insertable::*;
-    }
-    mod update
-    {
-        mod collection_update_interface;
-        mod updatable;
-        mod update_interface;
-
-        pub use collection_update_interface::*;
-        pub use updatable::*;
-        pub use update_interface::*;
-    }
-    mod delete
-    {
-        mod collection_delete_interface;
-        mod delete_interface;
-
-        pub use collection_delete_interface::*;
-        pub use delete_interface::*;
-    }
-
-    pub use database::*;
-    pub use delete::*;
-    pub use insert::*;
-    pub use query::*;
-    pub use table::*;
-    pub use taker::*;
-    pub use update::*;
-    pub use view::*;
 }
 pub mod macros
 {
@@ -65,5 +26,3 @@ pub mod macros
 }
 
 pub const MYSQL_DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
-
-pub use structs::database_internal::DatabaseInternal;

@@ -1,13 +1,21 @@
-use crate::traits::{GetDatabase, Table};
-use anyhow::{bail, Result};
+use super::*;
 use mysql::prelude::Queryable;
 
-pub trait CollectionQueryInterface<T: Table>: GetDatabase + Send + Sync
+pub trait CollectionViewInterface<T: View>: GetDatabase
 {
-    fn query_drop(&self, statement: &str) -> Result<()>
+    fn query_by_expression(&self, expression: &str) -> Result<Vec<T>>
+    {
+        let result = self.get_connection()?
+                         .query(T::query_by_expression_statement(expression))?;
+        Ok(result)
+    }
+
+    fn query_by_id_unchecked(&self, id: u64) -> Result<Option<T>>
     {
         let mut conn = self.get_connection()?;
-        conn.query_drop(statement).map_err(|e| e.into())
+        let id_statement = T::query_by_id_statement(id);
+
+        conn.query_first(&id_statement).map_err(|e| e.into())
     }
 
     fn query_all(&self) -> Result<Vec<T>>
@@ -42,19 +50,11 @@ pub trait CollectionQueryInterface<T: Table>: GetDatabase + Send + Sync
         }
     }
 
-    fn query_by_id_unchecked(&self, id: u64) -> Result<Option<T>>
+    fn query_first_by_id(&self, id: u64) -> Result<Option<T>>
     {
         let mut conn = self.get_connection()?;
-        let id_statement = T::query_by_id_statement(id);
-
-        conn.query_first(&id_statement).map_err(|e| e.into())
-    }
-
-    fn query_by_expression(&self, expression: &str) -> Result<Vec<T>>
-    {
-        let mut conn = self.get_connection()?;
-        let expression_statement = T::query_by_expression_statement(expression);
-        conn.query(expression_statement).map_err(|e| e.into())
+        let expression_statement = T::query_by_id_statement(id);
+        conn.query_first(expression_statement).map_err(|e| e.into())
     }
 
     fn query_first_by_expression(&self, expression: &str) -> Result<Option<T>>
@@ -63,4 +63,8 @@ pub trait CollectionQueryInterface<T: Table>: GetDatabase + Send + Sync
         let expression_statement = T::query_by_expression_statement(expression);
         conn.query_first(expression_statement).map_err(|e| e.into())
     }
+}
+
+impl<T: View, DB: GetDatabase> CollectionViewInterface<T> for DB
+{
 }

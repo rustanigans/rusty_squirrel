@@ -1,45 +1,59 @@
-use crate::traits::GetDatabase;
-use anyhow::Result;
-use mysql::prelude::{FromRow, Queryable};
+use mysql::prelude::FromRow;
 
 pub trait View: FromRow + Send + Sync
 {
-    fn query_view_statement() -> String;
-    fn query_options_statement() -> String
+    const TABLE_NAME: &'static str;
+    fn field_selection() -> String
+    {
+        "*".to_string()
+    }
+
+    fn join_clause() -> String
+    {
+        "".to_string()
+    }
+
+    fn from_clause() -> String
+    {
+        Self::TABLE_NAME.to_string()
+    }
+
+    fn query_statement() -> String
+    {
+        format!("SELECT {} FROM {} {}",
+                Self::field_selection(),
+                Self::from_clause(),
+                Self::join_clause())
+    }
+
+    fn options_clause() -> String
     {
         Default::default()
     }
-    fn query_view_by_expression_statement(expression: &str) -> String
-    {
-        Self::query_view_statement() + " WHERE " + expression + " " + &Self::query_options_statement()
-    }
-    fn query_view_by_id_statement(id: u64) -> String
-    {
-        format!("{} WHERE id = {} {}",
-                Self::query_view_statement(),
-                id,
-                Self::query_options_statement())
-    }
-}
 
-pub trait CollectionViewInterface<T: View>: GetDatabase
-{
-    fn query_view_by_expression(&self, expression: &str) -> Result<Vec<T>>
+    fn where_clause(expression: &str) -> String
     {
-        let result = self.get_connection()?
-                         .query(T::query_view_by_expression_statement(expression))?;
-        Ok(result)
+        format!(" WHERE {} ", expression)
     }
 
-    fn query_view_by_id_unchecked(&self, id: u64) -> Result<Option<T>>
+    fn query_all_statement() -> String
     {
-        let mut conn = self.get_connection()?;
-        let id_statement = T::query_view_by_id_statement(id);
-
-        conn.query_first(&id_statement).map_err(|e| e.into())
+        Self::query_statement() + &Self::options_clause()
     }
-}
 
-impl<T: View, DB: GetDatabase> CollectionViewInterface<T> for DB
-{
+    fn query_by_id_statement(id: u64) -> String
+    {
+        format!("{} {} {}",
+                Self::query_statement(),
+                Self::where_clause(&format!("id = {}", id)),
+                Self::options_clause())
+    }
+
+    fn query_by_expression_statement(expression: &str) -> String
+    {
+        format!("{} {} {}",
+                Self::query_statement(),
+                Self::where_clause(expression),
+                Self::options_clause())
+    }
 }
