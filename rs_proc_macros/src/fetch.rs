@@ -1,4 +1,4 @@
-use quote::{quote, ToTokens};
+use quote::{format_ident, quote, ToTokens};
 use syn::{parse::{Parse, ParseStream},
           punctuated::Punctuated,
           DeriveInput, *};
@@ -13,11 +13,7 @@ impl Parse for LitStrField
         match x
         {
             Ok(o) => Ok(LitStrField(o)),
-            Err(e) =>
-            {
-                println!("Parsing Failed @ ln23");
-                Err(e)
-            }
+            Err(e) => Err(e)
         }
     }
 }
@@ -32,11 +28,7 @@ impl Parse for AttrParams
         match fields
         {
             Ok(o) => Ok(Self(o)),
-            Err(e) =>
-            {
-                println!("Parsing Failed @ ln42");
-                Err(e)
-            }
+            Err(e) => Err(e)
         }
     }
 }
@@ -185,8 +177,8 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                             //let mut lit_fields = vec![];
                             for lf in params.0
                             {
-                                let column_name = quote! { lf.0.value() };
-                                attr_quote = quote! { self.#field_ident.#column_name };
+                                let field_name = format_ident!("{}", lf.0.value());
+                                attr_quote = quote! { self.#field_ident.#field_name };
                             }
                             break;
                         }
