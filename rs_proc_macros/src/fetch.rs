@@ -146,7 +146,7 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
             let field_ident = &f.ident;
             let string_name = field_ident.clone().expect("3").to_string();
 
-            let mut attr_quote: proc_macro2::TokenStream = quote! { #field_ident};
+            let mut attr_quote: proc_macro2::TokenStream = quote! { self.#field_ident};
 
             let mut is_option = false;
             let inner_type = check_and_get_inner("Option", field_type);
@@ -162,19 +162,42 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                              .to_string()
                              .contains("DateTime")
                 {
-                    attr_quote = quote! { #field_ident.map(|x| x.format(MYSQL_DATE_FORMAT).to_string()) };
+                    attr_quote = quote! { self.#field_ident.map(|x| x.format(MYSQL_DATE_FORMAT).to_string()) };
                 }
             }
             else
             {
                 if field_type.to_token_stream().to_string().contains("DateTime")
                 {
-                    attr_quote = quote! { #field_ident.format(MYSQL_DATE_FORMAT).to_string() };
+                    attr_quote = quote! { self.#field_ident.format(MYSQL_DATE_FORMAT).to_string() };
+                }
+            }
+
+            for a in &f.attrs
+            {
+                match a.path.segments.last().expect("5").ident.to_string().as_str()
+                {
+                    "rs_e" => attr_quote = quote! { (self.#field_ident as u8) },
+                    "rs_spl" =>
+                    {
+                        if let Ok(params) = a.parse_args_with(AttrParams::parse)
+                        {
+                            let mut lit_fields = vec![];
+                            for lf in params.0
+                            {
+                                let column_name = format!("{}.{}", #field_ident, lf.0.value());
+                                lit_fields.push(column_name)
+                            }
+                            attr_quote = quote! { self.#lit_fields };
+                            break;
+                        }
+                    }
+                    _ => continue
                 }
             }
 
             println!("to params quote = {:#?}", attr_quote.to_string());
-            fqs.push(quote! { #string_name => &self.#attr_quote, }.into());
+            fqs.push(quote! { #string_name => &#attr_quote, }.into());
         }
     }
     Ok(fqs)
