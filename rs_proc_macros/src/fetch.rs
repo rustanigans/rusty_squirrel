@@ -76,7 +76,11 @@ pub fn from_row_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::
             {
                 match a.path.segments.last().expect("5").ident.to_string().as_str()
                 {
-                    "rs_e" => attr_quote = quote! { row.take_enum(#string_name)?},
+                    "rs_e" =>
+                    {
+                        attr_quote = quote! { row.take_enum(#string_name)?};
+                        break;
+                    }
                     "rs_spl" =>
                     {
                         if let Ok(params) = a.parse_args_with(AttrParams::parse)
@@ -89,6 +93,7 @@ pub fn from_row_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::
                             }
                             attr_quote = quote! { #field_type::new(#(row.take_hinted(#lit_fields)?,)*)
                             };
+
                             break;
                         }
                     }
@@ -173,10 +178,7 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                     }
                 }
 
-                if f.attrs.is_empty()
-                {
-                    fqs.push(quote! { #string_name => &#attr_quote, }.into());
-                }
+                let mut handled_by_attribute = false;
 
                 for a in &f.attrs
                 {
@@ -186,6 +188,8 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                         {
                             attr_quote = quote! { (self.#field_ident as u8) };
                             fqs.push(quote! { #string_name => &#attr_quote, }.into());
+                            handled_by_attribute = true;
+                            break;
                         }
                         "rs_spl" =>
                         {
@@ -204,12 +208,16 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                                     attr_quote = quote! { self.#field_ident.#entry };
                                     fqs.push(quote! { #string_quote => &#attr_quote, }.into());
                                 }
+                                handled_by_attribute = true;
+                                break;
                             }
                         }
-                        _ =>
-                        {}
+                        _ => continue
                     }
-                    break;
+                }
+                if !handled_by_attribute
+                {
+                    fqs.push(quote! { #string_name => &#attr_quote, }.into());
                 }
             }
         }
