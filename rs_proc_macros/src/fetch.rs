@@ -171,28 +171,46 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                 {
                     match a.path.segments.last().expect("5").ident.to_string().as_str()
                     {
-                        "rs_e" => attr_quote = quote! { (self.#field_ident as u8) },
+                        "rs_e" => {
+                            attr_quote = quote! { (self.#field_ident as u8) };
+                            println!("to params quote = {:#?}", attr_quote.to_string());
+                            fqs.push(quote! { #string_name => &#attr_quote, }.into());
+                        }
                         "rs_spl" =>
                         {
                             if let Ok(params) = a.parse_args_with(AttrParams::parse)
                             {
-                                //let mut lit_fields = vec![];
+                                let mut lit_fields = vec![];
                                 for lf in params.0
                                 {
                                     let field_name = format_ident!("{}", lf.0.value());
-                                    attr_quote = quote! { self.#field_ident.#field_name };
+                                    lit_fields.push(field_name);
                                 }
-                                break;
+
+                                for entry in lit_fields
+                                {
+                                    attr_quote = quote! { self.#field_ident.entry };
+                                    println!("to params quote = {:#?}", attr_quote.to_string());
+                                    fqs.push(quote! { #string_name => &#attr_quote, }.into());
+                                }
                             }
                         }
-                        _ => continue
+                        _ =>
+                            {
+                                println!("to params quote = {:#?}", attr_quote.to_string());
+                                fqs.push(quote! { #string_name => &#attr_quote, }.into());
+                            }
                     }
+                    break;
                 }
-
-                println!("to params quote = {:#?}", attr_quote.to_string());
-                fqs.push(quote! { #string_name => &#attr_quote, }.into());
             }
         }
     }
     Ok(fqs)
 }
+
+let column_name = format!("{}_{}", string_name, lf.0.value());
+lit_fields.push(column_name)
+}
+attr_quote = quote! { #field_type::new(#(row.take_hinted(#lit_fields)?,)*)
+                            };
