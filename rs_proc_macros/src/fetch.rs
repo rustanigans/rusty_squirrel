@@ -1,11 +1,7 @@
-use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use std::iter::Map;
 use syn::{parse::{Parse, ParseStream},
-          punctuated::{Iter, Punctuated},
-          spanned::Spanned,
-          token::{Comma, Token},
-          DeriveInput, Field, *};
+          punctuated::Punctuated,
+          DeriveInput, *};
 
 struct LitStrField(LitStr);
 
@@ -45,7 +41,7 @@ impl Parse for AttrParams
     }
 }
 
-pub fn field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::TokenStream>>
+pub fn from_row_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::TokenStream>>
 {
     let mut fqs = vec![];
     if let Data::Struct(ds) = &ast.data
@@ -137,4 +133,49 @@ pub(crate) fn check_and_get_inner<'a>(outer_type: &str, ty: &'a syn::Type) -> st
         }
     }
     None
+}
+
+pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::TokenStream>>
+{
+    let mut fqs = vec![];
+    if let Data::Struct(ds) = &ast.data
+    {
+        for f in &ds.fields
+        {
+            let field_type = &f.ty;
+            let field_ident = &f.ident;
+            let string_name = field_ident.clone().expect("3").to_string();
+
+            let mut attr_quote: proc_macro2::TokenStream = quote! { #field_ident};
+
+            let mut is_option = false;
+            let inner_type = check_and_get_inner("Option", field_type);
+            if inner_type.is_some()
+            {
+                is_option = true; // leaving this so we can do other optional types that also fit in the attribute category
+            }
+
+            if is_option
+            {
+                if inner_type.expect("4")
+                             .to_token_stream()
+                             .to_string()
+                             .contains("DateTime")
+                {
+                    attr_quote = quote! { #field_ident.map(|x| x.format(MYSQL_DATE_FORMAT).to_string()) };
+                }
+            }
+            else
+            {
+                if field_type.to_token_stream().to_string().contains("DateTime")
+                {
+                    attr_quote = quote! { #field_ident.format(MYSQL_DATE_FORMAT).to_string() };
+                }
+            }
+
+            println!("to params quote = {:#?}", attr_quote.to_string());
+            fqs.push(quote! { #string_name => &self.#attr_quote, }.into());
+        }
+    }
+    Ok(fqs)
 }
