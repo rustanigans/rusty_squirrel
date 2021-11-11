@@ -199,7 +199,7 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                         {
                             if let Ok(params) = a.parse_args_with(AttrParams::parse)
                             {
-                                let mut lit_fields = vec![];
+                                //let mut lit_fields = vec![];
                                 for lf in params.0
                                 {
                                     let parens = if lf.is_accessor
@@ -211,14 +211,11 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                                         quote! {}
                                     };
                                     let field_name = format_ident!("{}", lf.field_name.value());
-                                    lit_fields.push(quote! { #field_name #parens });
-                                }
+                                    let entry = quote! { #field_name };
 
-                                for entry in lit_fields
-                                {
                                     let string_quote = format!("{}_{}", string_name, entry);
                                     attr_quote = quote! { self.#field_ident.#entry };
-                                    fqs.push(quote! { #string_quote => &#attr_quote, }.into());
+                                    fqs.push(quote! { #string_quote => &#attr_quote #parens, }.into());
                                 }
                                 handled_by_attribute = true;
                                 break;
