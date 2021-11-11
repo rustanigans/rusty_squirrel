@@ -42,7 +42,7 @@ pub fn from_row_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::
         {
             let field_type = &f.ty;
             let field_ident = &f.ident;
-            let string_name = field_ident.clone().expect("3").to_string();
+            let string_name = field_ident.clone().expect("3").to_string().replace("r#", "");
 
             let mut attr_quote: proc_macro2::TokenStream = quote! { row.take_hinted(#string_name)?};
 
@@ -136,7 +136,7 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
         {
             let field_type = &f.ty;
             let field_ident = &f.ident;
-            let string_name = field_ident.clone().expect("3").to_string();
+            let string_name = field_ident.clone().expect("3").to_string().replace("r#", "");
 
             if string_name != "id"
             {
