@@ -8,7 +8,7 @@ pub trait CollectionDeleteInterface: GetDatabase
         let id_statement = T::delete_by_id_statement(id);
 
         let result = conn.query_drop(id_statement);
-        check_delete_result(result, &mut conn)
+        check_delete_result(result, &conn)
     }
 
     fn delete_by_expression<T: Table>(&self, expression: &str) -> Result<()>
