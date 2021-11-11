@@ -167,6 +167,12 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                     }
                 }
 
+                if f.attrs.is_empty()
+                {
+                    println!("to params quote = {:#?}", attr_quote.to_string());
+                    fqs.push(quote! { #string_name => &#attr_quote, }.into());
+                }
+
                 for a in &f.attrs
                 {
                     match a.path.segments.last().expect("5").ident.to_string().as_str()
@@ -197,10 +203,7 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                             }
                         }
                         _ =>
-                        {
-                            println!("to params quote = {:#?}", attr_quote.to_string());
-                            fqs.push(quote! { #string_name => &#attr_quote, }.into());
-                        }
+                        {}
                     }
                     break;
                 }
