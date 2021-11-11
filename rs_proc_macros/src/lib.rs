@@ -14,7 +14,7 @@ pub fn derive(input: TokenStream) -> TokenStream
     let from_row_field_quote: Vec<proc_macro2::TokenStream> = fetch::from_row_field_quotes(&ast).expect("1a");
     let to_params_field_quote: Vec<proc_macro2::TokenStream> = fetch::to_params_field_quotes(&ast).expect("1b");
 
-    let mod_name = format_ident!("impl_{}", name);
+    let mod_name = format_ident!("impl_{}", name.to_string().to_lowercase());
     let extended = quote! {
         mod #mod_name
         {
