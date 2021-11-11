@@ -15,28 +15,33 @@ pub fn derive(input: TokenStream) -> TokenStream
     let from_row_field_quote: Vec<proc_macro2::TokenStream> = fetch::from_row_field_quotes(&ast).expect("1a");
     let to_params_field_quote: Vec<proc_macro2::TokenStream> = fetch::to_params_field_quotes(&ast).expect("1b");
 
+    let mod_name = format_ident!("impl_{}", name);
     let extended = quote! {
-
-        impl Updatable for #name
+        mod #mod_name
         {
-            fn to_params(&self) -> Params
-            {
-                params!(
-                    #(#to_params_field_quote)*
-                )
-            }
-        }
+            use super::*;
+            use mysql::{params, Params};
+            use rusty_squirrel::traits::{Taker, Updatable};
 
-        impl mysql::prelude::FromRow for #name
-        {
-            fn from_row_opt<'a>(mut row: mysql::Row) -> std::result::Result<Self, mysql::FromRowError> where Self: Sized
+            impl Updatable for #name
             {
-                Ok(Self
+                fn to_params(&self) -> Params
                 {
-                    #(#from_row_field_quote)*
-                })
+                    params!(#(#to_params_field_quote)*)
+                }
             }
-        }
+
+            impl mysql::prelude::FromRow for #name
+            {
+                fn from_row_opt<'a>(mut row: mysql::Row) -> std::result::Result<Self, mysql::FromRowError> where Self: Sized
+                {
+                    Ok(Self
+                    {
+                        #(#from_row_field_quote)*
+                    })
+                }
+            }
+        };
     };
     extended.into()
 }
