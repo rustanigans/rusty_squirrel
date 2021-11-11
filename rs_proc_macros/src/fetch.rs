@@ -190,7 +190,7 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
 
                                 for entry in lit_fields
                                 {
-                                    attr_quote = quote! { self.#field_ident.entry };
+                                    attr_quote = quote! { self.#field_ident.#entry };
                                     println!("to params quote = {:#?}", attr_quote.to_string());
                                     fqs.push(quote! { #string_name => &#attr_quote, }.into());
                                 }
