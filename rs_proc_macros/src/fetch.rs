@@ -171,7 +171,8 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                 {
                     match a.path.segments.last().expect("5").ident.to_string().as_str()
                     {
-                        "rs_e" => {
+                        "rs_e" =>
+                        {
                             attr_quote = quote! { (self.#field_ident as u8) };
                             println!("to params quote = {:#?}", attr_quote.to_string());
                             fqs.push(quote! { #string_name => &#attr_quote, }.into());
@@ -196,10 +197,10 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                             }
                         }
                         _ =>
-                            {
-                                println!("to params quote = {:#?}", attr_quote.to_string());
-                                fqs.push(quote! { #string_name => &#attr_quote, }.into());
-                            }
+                        {
+                            println!("to params quote = {:#?}", attr_quote.to_string());
+                            fqs.push(quote! { #string_name => &#attr_quote, }.into());
+                        }
                     }
                     break;
                 }
@@ -208,9 +209,3 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
     }
     Ok(fqs)
 }
-
-let column_name = format!("{}_{}", string_name, lf.0.value());
-lit_fields.push(column_name)
-}
-attr_quote = quote! { #field_type::new(#(row.take_hinted(#lit_fields)?,)*)
-                            };
