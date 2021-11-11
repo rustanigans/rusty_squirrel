@@ -182,13 +182,12 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                     {
                         if let Ok(params) = a.parse_args_with(AttrParams::parse)
                         {
-                            let mut lit_fields = vec![];
+                            //let mut lit_fields = vec![];
                             for lf in params.0
                             {
-                                let column_name = format!("{}.{}", #field_ident, lf.0.value());
-                                lit_fields.push(column_name)
+                                let column_name = quote! { lf.0.value() };
+                                attr_quote = quote! { self.#field_ident.#column_name };
                             }
-                            attr_quote = quote! { self.#lit_fields };
                             break;
                         }
                     }
