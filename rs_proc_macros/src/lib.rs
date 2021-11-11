@@ -3,9 +3,8 @@
 mod fetch;
 
 use proc_macro::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
-use syn::{parse::{Parse, Parser},
-          parse_macro_input, DeriveInput};
+use quote::{format_ident, quote};
+use syn::{parse_macro_input, DeriveInput};
 
 #[proc_macro_derive(RustyParams, attributes(rs_e, rs_spl))]
 pub fn derive(input: TokenStream) -> TokenStream
