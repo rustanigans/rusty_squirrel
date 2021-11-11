@@ -44,7 +44,9 @@ impl SquirrelDatabase
         let database_name = options1.get_db_name()
                                     .ok_or_else(|| anyhow!("No database provided in url"))?
                                     .to_string();
-        let options = mysql::OptsBuilder::new().ip_or_hostname(Some(options1.get_ip_or_hostname()))
+        let options = mysql::OptsBuilder::new().user(options1.get_user())
+                                               .pass(options1.get_pass())
+                                               .ip_or_hostname(Some(options1.get_ip_or_hostname()))
                                                .tcp_port(options1.get_tcp_port());
         let mut conn = Conn::new(Opts::from(options))?;
         if !conn.select_db(&database_name)
