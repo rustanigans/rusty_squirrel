@@ -15,6 +15,7 @@ pub struct SquirrelDatabaseConfig
     pub min_connections: usize,
     pub max_connections: usize
 }
+
 impl Default for SquirrelDatabaseConfig
 {
     fn default() -> Self
@@ -51,7 +52,7 @@ impl SquirrelDatabase
         let mut conn = Conn::new(Opts::from(options))?;
         if !conn.select_db(&database_name)
         {
-            conn.query_drop(format!("CREATE SCHEMA IF NOT EXISTS `{}` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;", database_name))?;
+            conn.query_drop(format!("CREATE SCHEMA IF NOT EXISTS `{}`;", database_name))?;
         }
         Ok(Self { db_name:         Arc::new(database_name),
                   connection_pool: Pool::new_manual(config.min_connections, config.max_connections, options1)? })
