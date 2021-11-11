@@ -207,7 +207,7 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
             }
         }
     }
-    for fq in fqs
+    for fq in fqs.clone().into_iter()
     {
         println!("{}", fq);
     }
