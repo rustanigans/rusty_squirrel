@@ -6,7 +6,7 @@ use std::sync::Arc;
 #[derive(Clone)]
 pub struct SquirrelDatabase
 {
-    db_name:         Arc<String>,
+    pub db_name:     Arc<String>,
     connection_pool: Pool
 }
 
