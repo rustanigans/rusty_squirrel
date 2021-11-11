@@ -43,5 +43,6 @@ pub fn derive(input: TokenStream) -> TokenStream
             }
         };
     };
+    println!("{}", extended);
     extended.into()
 }
