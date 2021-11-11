@@ -38,6 +38,7 @@ pub fn from_row_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::
     let mut fqs = vec![];
     if let Data::Struct(ds) = &ast.data
     {
+        println!("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
         for f in &ds.fields
         {
             let field_type = &f.ty;
@@ -98,6 +99,10 @@ pub fn from_row_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::
             fqs.push(quote! { #field_ident: #attr_quote,  }.into());
         }
     }
+    for fq in fqs.clone().into_iter()
+    {
+        println!("{}", fq);
+    }
     Ok(fqs)
 }
 
@@ -132,7 +137,7 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
     let mut fqs = vec![];
     if let Data::Struct(ds) = &ast.data
     {
-        println!("{}", ds.struct_token.to_token_stream().to_string());
+        println!("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
         for f in &ds.fields
         {
             let field_type = &f.ty;
