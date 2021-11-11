@@ -54,6 +54,7 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/serde_json-682e0f14de331ebc/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-92167b18e36dcf5b/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/winapi-be635ce262a974f7/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-0361f7b66414a01e/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
