@@ -52,6 +52,7 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/num-bigint-dc959ac3b1eae5f5/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/proc-macro2-9efa452c4e20804e/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/serde_json-682e0f14de331ebc/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-0361f7b66414a01e/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-92167b18e36dcf5b/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/winapi-be635ce262a974f7/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
