@@ -169,7 +169,6 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
 
                 if f.attrs.is_empty()
                 {
-                    println!("to params quote = {:#?}", attr_quote.to_string());
                     fqs.push(quote! { #string_name => &#attr_quote, }.into());
                 }
 
@@ -180,7 +179,6 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                         "rs_e" =>
                         {
                             attr_quote = quote! { (self.#field_ident as u8) };
-                            println!("to params quote = {:#?}", attr_quote.to_string());
                             fqs.push(quote! { #string_name => &#attr_quote, }.into());
                         }
                         "rs_spl" =>
@@ -197,7 +195,6 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                                 for entry in lit_fields
                                 {
                                     attr_quote = quote! { self.#field_ident.#entry };
-                                    println!("to params quote = {:#?}", attr_quote.to_string());
                                     fqs.push(quote! { #string_name => &#attr_quote, }.into());
                                 }
                             }
@@ -209,6 +206,10 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                 }
             }
         }
+    }
+    for fq in fqs
+    {
+        println!("{}", fq);
     }
     Ok(fqs)
 }
