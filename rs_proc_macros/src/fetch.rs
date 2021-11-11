@@ -132,6 +132,7 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
     let mut fqs = vec![];
     if let Data::Struct(ds) = &ast.data
     {
+        println!("{}", ds.struct_token.to_token_stream().to_string());
         for f in &ds.fields
         {
             let field_type = &f.ty;
