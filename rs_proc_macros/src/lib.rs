@@ -21,6 +21,7 @@ pub fn derive(input: TokenStream) -> TokenStream
             use super::*;
             use mysql::{params, Params};
             use rusty_squirrel::traits::{Taker, Updatable};
+            use rusty_squirrel::MYSQL_DATE_FORMAT;
 
             impl Updatable for #name
             {
