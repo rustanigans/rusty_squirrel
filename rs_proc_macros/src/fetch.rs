@@ -1,35 +1,15 @@
 use quote::{format_ident, quote, ToTokens};
-use syn::{group::parse_parens,
-          parse::{Parse, ParseStream},
+use syn::{parse::{Parse, ParseStream},
           punctuated::Punctuated,
           DeriveInput, *};
 
-/// This is a struct to contain the options for splitting field
-struct SplitOptions
-{
-    pub field_name:  LitStr,
-    // This is to indicate that when reading field we need an accessor
-    pub is_accessor: bool
-}
-
-impl Parse for SplitOptions
-{
-    fn parse(input: ParseStream) -> Result<Self>
-    {
-        Ok(Self { field_name:  input.parse()?,
-                  // Just checking that there are some parens
-                  // If it parses then, the is_accessor is true
-                  is_accessor: parse_parens(input).is_ok() })
-    }
-}
-
-struct AttrParams(Punctuated<SplitOptions, Token![,]>);
+struct AttrParams(Punctuated<LitStr, Token![,]>);
 
 impl Parse for AttrParams
 {
     fn parse(input: ParseStream) -> Result<Self>
     {
-        let fields = input.parse_terminated(SplitOptions::parse);
+        let fields = input.parse_terminated(Parse::parse);
         match fields
         {
             Ok(o) => Ok(Self(o)),
@@ -94,7 +74,7 @@ pub fn from_row_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::
 
                             for lf in params.0
                             {
-                                let column_name = format!("{}_{}", string_name, lf.field_name.value());
+                                let column_name = format!("{}_{}", string_name, lf.value());
                                 lit_fields.push(column_name)
                             }
                             attr_quote = quote! { #field_type::new(#(row.take_hinted(#lit_fields)?,)*) };
@@ -201,17 +181,11 @@ pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2:
                             {
                                 for lf in params.0
                                 {
-                                    let string_quote = format!("{}_{}", string_name, lf.field_name.value());
-                                    let field_name = format_ident!("{}", lf.field_name.value());
+                                    let string_quote = format!("{}_{}", string_name, lf.value());
+                                    let field_name = format_ident!("{}", lf.value());
                                     attr_quote = quote! { self.#field_ident.#field_name };
-                                    if lf.is_accessor
-                                    {
-                                        fqs.push(quote! { #string_quote => &#attr_quote (), }.into());
-                                    }
-                                    else
-                                    {
-                                        fqs.push(quote! { #string_quote => &#attr_quote, }.into());
-                                    }
+
+                                    fqs.push(quote! { #string_quote => &#attr_quote (), }.into());
                                 }
                                 handled_by_attribute = true;
                                 break;
