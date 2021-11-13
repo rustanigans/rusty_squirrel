@@ -1,48 +1,89 @@
 #![allow(clippy::suspicious_else_formatting)]
+use crate::{struct_view::{ImplFromRow, ImplTable, ImplTableCreate, ImplUpdatable, ImplView, StructViewOptions},
+            view_attribute::ViewAttributeOptions};
+use proc_macro::TokenStream;
+use proc_macro2::TokenStream as TS2;
+use quote::*;
+use syn::{parse::{Parse, ParseStream},
+          spanned::Spanned,
+          *};
 
 mod fetch;
+mod struct_view;
+mod view_attribute;
+// Custom Keywords
+mod custom_key_words
+{
+    syn::custom_keyword!(table);
+}
 
-use proc_macro::TokenStream;
-use quote::{format_ident, quote};
-use syn::{parse_macro_input, DeriveInput};
+// Helper macro to spit out error in main derive fn
+macro_rules! derive_error {
+    ($ast:ident, $m:literal) => {
+        return Error::new($ast.span(), $m).to_compile_error().into();
+    };
+    ($e:ident) => {
+        return $e.to_compile_error().into()
+    };
+}
 
-#[proc_macro_derive(RustyParams, attributes(rs_e, rs_spl))]
+#[proc_macro_derive(RustyParams, attributes(rs_e, rs_spl, rs_view))]
 pub fn derive(input: TokenStream) -> TokenStream
 {
-    let ast = parse_macro_input!(input as DeriveInput);
-    let name = &ast.ident;
-    let from_row_field_quote: Vec<proc_macro2::TokenStream> = fetch::from_row_field_quotes(&ast).expect("1a");
-    let to_params_field_quote: Vec<proc_macro2::TokenStream> = fetch::to_params_field_quotes(&ast).expect("1b");
+    let ast: DeriveInput = parse_macro_input!(input as DeriveInput);
 
-    let mod_name = format_ident!("impl_{}", name.to_string().to_lowercase());
-    let extended = quote! {
-        mod #mod_name
+    if let Data::Struct(ds) = &ast.data
+    {
+        if !ast.attrs.iter().any(|x| x.path.is_ident("rs_view"))
         {
-            use super::*;
-            use mysql::{params, Params};
-            use rusty_squirrel::traits::{Taker, Updatable};
-            use rusty_squirrel::MYSQL_DATE_FORMAT;
+            derive_error!(ast, "Expected rs_view attribute");
+        }
 
-            impl Updatable for #name
-            {
-                fn to_params(&self) -> Params
-                {
-                    params!(#(#to_params_field_quote)*)
-                }
-            }
-
-            impl mysql::prelude::FromRow for #name
-            {
-                fn from_row_opt<'a>(mut row: mysql::Row) -> std::result::Result<Self, mysql::FromRowError> where Self: Sized
-                {
-                    Ok(Self
-                    {
-                        #(#from_row_field_quote)*
-                    })
-                }
-            }
+        let main_attr = match ast.attrs
+                                 .iter()
+                                 .filter(|x| x.path.is_ident("rs_view"))
+                                 .last()
+                                 .expect("1")
+                                 .parse_args_with(ViewAttributeOptions::parse)
+        {
+            Ok(x) => x,
+            Err(e) => derive_error!(e)
         };
-    };
-    println!("{}", extended);
-    extended.into()
+        let opts = StructViewOptions { name:         ast.ident,
+                                       data_struct:  ds,
+                                       attr_options: &main_attr };
+
+        let impl_view = ImplView(&opts);
+        let impl_from_row = ImplFromRow(&opts);
+        let impl_table = ImplTable(&opts);
+        let impl_table_create = ImplTableCreate(&opts);
+        let impl_updatable = ImplUpdatable(&opts);
+        use convert_case::{Case, Casing};
+        let mod_name = format_ident!("impl_{}", opts.name.to_string().to_case(Case::Snake));
+
+        let extended = quote! {
+            mod #mod_name
+            {
+                use super::*;
+                use rusty_squirrel::traits::{Taker, View};
+
+                #impl_view
+
+                #impl_from_row
+
+                #impl_table
+
+                #impl_table_create
+
+                #impl_updatable
+            };
+        };
+        println!("{}", extended);
+
+        extended.into()
+    }
+    else
+    {
+        derive_error!(ast, "Expected Struct");
+    }
 }
