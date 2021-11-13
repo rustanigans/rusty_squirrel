@@ -1,5 +1,4 @@
 use super::*;
-use syn::punctuated::Punctuated;
 
 struct AttrParams(Punctuated<LitStr, Token![,]>);
 

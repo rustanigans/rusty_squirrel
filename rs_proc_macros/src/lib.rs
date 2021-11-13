@@ -1,13 +1,17 @@
 #![allow(clippy::suspicious_else_formatting)]
-use crate::{struct_view::{ImplFromRow, ImplTable, ImplTableCreate, ImplUpdatable, ImplView, StructViewOptions},
+use crate::{enum_view::{EnumViewOptions, ImplU8},
+            struct_view::{ImplFromRow, ImplTable, ImplTableCreate, ImplUpdatable, ImplView, StructViewOptions},
             view_attribute::ViewAttributeOptions};
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TS2;
 use quote::*;
 use syn::{parse::{Parse, ParseStream},
+          punctuated::Punctuated,
           spanned::Spanned,
+          token::Comma,
           *};
 
+mod enum_view;
 mod fetch;
 mod struct_view;
 mod view_attribute;
@@ -49,6 +53,7 @@ pub fn derive(input: TokenStream) -> TokenStream
             Ok(x) => x,
             Err(e) => derive_error!(e)
         };
+
         let opts = StructViewOptions { name:         ast.ident,
                                        data_struct:  ds,
                                        attr_options: &main_attr };
@@ -58,8 +63,9 @@ pub fn derive(input: TokenStream) -> TokenStream
         let impl_table = ImplTable(&opts);
         let impl_table_create = ImplTableCreate(&opts);
         let impl_updatable = ImplUpdatable(&opts);
+
         use convert_case::{Case, Casing};
-        let mod_name = format_ident!("impl_{}", opts.name.to_string().to_case(Case::Snake));
+        let mod_name: Ident = format_ident!("impl_{}", opts.name.to_string().to_case(Case::Snake));
 
         let extended = quote! {
             mod #mod_name
@@ -78,8 +84,7 @@ pub fn derive(input: TokenStream) -> TokenStream
                 #impl_updatable
             };
         };
-        println!("{}", extended);
-
+        //println!("{}", extended);
         extended.into()
     }
     else
@@ -95,38 +100,27 @@ pub fn from_enum(input: TokenStream) -> TokenStream
 
     if let Data::Enum(e) = &ast.data
     {
+        let enum_name = ast.ident;
+
+        let opts = EnumViewOptions { name:     enum_name.clone(),
+                                     variants: e.variants.clone() };
+        let impl_from_u8 = ImplU8(&opts);
+
         use convert_case::{Case, Casing};
-        let mod_name = format_ident!("impl_{}", ast.ident.to_string().to_case(Case::Snake));
+        let mod_ident: Ident = format_ident!("impl_{}", enum_name.to_string().to_case(Case::Snake));
 
         let mut extended = quote! {};
-        for v in &e.variants
-        {
-            let variant_type = &v;
 
-            extended.append_all(quote! {
-                        mod #mod_name
-                        {
-                            use super::*;
-                            use anyhow::Error;
+        extended.append_all(quote! {
+                    mod #mod_ident
+                    {
+                        use super::*;
+                        use anyhow::Error;
 
-                            impl TryFrom<u8> for #variant_type //(enums field)
-                            {
-                                type Error = anyhow::Error;
-
-                                fn try_from(value: u8) -> Result<Self, Self::Error>
-                                {
-                                    Ok((match value
-                                        {
-                                            (x if x == <self>::#variant_type as u8 => <self>::#variant_type,)*
-                                            _ => anyhow::bail!("Invalid Enum Value")
-                                        }))
-                                }
-
-                            }
-                        }
-                    });
-        }
-        println!("{}", extended);
+                        #impl_from_u8
+                    }
+                });
+        //println!("{}", extended);
         extended.into()
     }
     else
