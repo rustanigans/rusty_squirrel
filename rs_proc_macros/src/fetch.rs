@@ -1,7 +1,5 @@
-use quote::{format_ident, quote, ToTokens};
-use syn::{parse::{Parse, ParseStream},
-          punctuated::Punctuated,
-          DeriveInput, *};
+use super::*;
+use syn::punctuated::Punctuated;
 
 struct AttrParams(Punctuated<LitStr, Token![,]>);
 
@@ -18,74 +16,71 @@ impl Parse for AttrParams
     }
 }
 
-pub fn from_row_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::TokenStream>>
+pub fn from_row_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
 {
-    let mut fqs = vec![];
-    if let Data::Struct(ds) = &ast.data
+    let mut fqs = TS2::new();
+
+    for f in &ds.fields
     {
-        for f in &ds.fields
+        let field_type = &f.ty;
+        let field_ident = &f.ident;
+        let string_name = field_ident.clone().expect("2").to_string().replace("r#", "");
+
+        let mut attr_quote: TS2 = quote! { row.take_hinted(#string_name)?};
+
+        let mut is_option = false;
+        let inner_type = check_and_get_inner("Option", field_type);
+        if inner_type.is_some()
         {
-            let field_type = &f.ty;
-            let field_ident = &f.ident;
-            let string_name = field_ident.clone().expect("3").to_string().replace("r#", "");
+            is_option = true; // leaving this so we can do other optional types that also fit in the attribute category
+        }
 
-            let mut attr_quote: proc_macro2::TokenStream = quote! { row.take_hinted(#string_name)?};
-
-            let mut is_option = false;
-            let inner_type = check_and_get_inner("Option", field_type);
-            if inner_type.is_some()
+        if is_option
+        {
+            if inner_type.expect("3")
+                         .to_token_stream()
+                         .to_string()
+                         .contains("DateTime")
             {
-                is_option = true; // leaving this so we can do other optional types that also fit in the attribute category
+                attr_quote = quote! { row.take_date_time_option(#string_name)?};
             }
-
-            if is_option
+        }
+        else
+        {
+            if field_type.to_token_stream().to_string().contains("DateTime")
             {
-                if inner_type.expect("4")
-                             .to_token_stream()
-                             .to_string()
-                             .contains("DateTime")
+                attr_quote = quote! { row.take_date_time(#string_name)?};
+            }
+        }
+
+        for a in &f.attrs
+        {
+            match a.path.segments.last().expect("4").ident.to_string().as_str()
+            {
+                "rs_e" =>
                 {
-                    attr_quote = quote! { row.take_date_time_option(#string_name)?};
+                    attr_quote = quote! { row.take_enum(#string_name)?};
+                    break;
                 }
-            }
-            else
-            {
-                if field_type.to_token_stream().to_string().contains("DateTime")
+                "rs_spl" =>
                 {
-                    attr_quote = quote! { row.take_date_time(#string_name)?};
-                }
-            }
-
-            for a in &f.attrs
-            {
-                match a.path.segments.last().expect("5").ident.to_string().as_str()
-                {
-                    "rs_e" =>
+                    if let Ok(params) = a.parse_args_with(AttrParams::parse)
                     {
-                        attr_quote = quote! { row.take_enum(#string_name)?};
+                        let mut lit_fields = vec![];
+
+                        for lf in params.0
+                        {
+                            let column_name = format!("{}_{}", string_name, lf.value());
+                            lit_fields.push(column_name)
+                        }
+                        attr_quote = quote! { #field_type::new(#(row.take_hinted(#lit_fields)?,)*) };
                         break;
                     }
-                    "rs_spl" =>
-                    {
-                        if let Ok(params) = a.parse_args_with(AttrParams::parse)
-                        {
-                            let mut lit_fields = vec![];
-
-                            for lf in params.0
-                            {
-                                let column_name = format!("{}_{}", string_name, lf.value());
-                                lit_fields.push(column_name)
-                            }
-                            attr_quote = quote! { #field_type::new(#(row.take_hinted(#lit_fields)?,)*) };
-                            break;
-                        }
-                    }
-                    _ => continue
                 }
+                _ => continue
             }
-
-            fqs.push(quote! { #field_ident: #attr_quote,  }.into());
         }
+        fqs.append_all(quote! { #field_ident: #attr_quote,  });
     }
     Ok(fqs)
 }
@@ -106,7 +101,7 @@ pub(crate) fn check_and_get_inner<'a>(outer_type: &str, ty: &'a syn::Type) -> st
                 println!("no args");
                 return None;
             }
-            let inner1 = abga.args.first().expect("6");
+            let inner1 = abga.args.first().expect("5");
             if let syn::GenericArgument::Type(ref t) = inner1
             {
                 return Some(t);
@@ -116,82 +111,81 @@ pub(crate) fn check_and_get_inner<'a>(outer_type: &str, ty: &'a syn::Type) -> st
     None
 }
 
-pub fn to_params_field_quotes(ast: &DeriveInput) -> syn::Result<Vec<proc_macro2::TokenStream>>
+pub fn to_params_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
 {
-    let mut fqs = vec![];
-    if let Data::Struct(ds) = &ast.data
+    let mut fqs = TS2::new();
+
+    for f in &ds.fields
     {
-        for f in &ds.fields
+        let field_type = &f.ty;
+        let field_ident = &f.ident;
+        let string_name = field_ident.clone().expect("6").to_string().replace("r#", "");
+
+        if string_name != "id"
         {
-            let field_type = &f.ty;
-            let field_ident = &f.ident;
-            let string_name = field_ident.clone().expect("3").to_string().replace("r#", "");
+            let mut attr_quote: TS2 = quote! { self.#field_ident};
 
-            if string_name != "id"
+            let mut is_option = false;
+            let inner_type = check_and_get_inner("Option", field_type);
+            if inner_type.is_some()
             {
-                let mut attr_quote: proc_macro2::TokenStream = quote! { self.#field_ident};
+                is_option = true; // leaving this so we can do other optional types that also fit in the attribute category
+            }
 
-                let mut is_option = false;
-                let inner_type = check_and_get_inner("Option", field_type);
-                if inner_type.is_some()
+            if is_option
+            {
+                if inner_type.expect("7")
+                             .to_token_stream()
+                             .to_string()
+                             .contains("DateTime")
                 {
-                    is_option = true; // leaving this so we can do other optional types that also fit in the attribute category
+                    attr_quote =
+                        quote! { self.#field_ident.map(|x| x.format(rusty_squirrel::MYSQL_DATE_FORMAT).to_string()) };
                 }
-
-                if is_option
+            }
+            else
+            {
+                if field_type.to_token_stream().to_string().contains("DateTime")
                 {
-                    if inner_type.expect("4")
-                                 .to_token_stream()
-                                 .to_string()
-                                 .contains("DateTime")
+                    attr_quote = quote! { self.#field_ident.format(rusty_squirrel::MYSQL_DATE_FORMAT).to_string() };
+                }
+            }
+
+            let mut handled_by_attribute = false;
+
+            for a in &f.attrs
+            {
+                match a.path.segments.last().expect("8").ident.to_string().as_str()
+                {
+                    "rs_e" =>
                     {
-                        attr_quote = quote! { self.#field_ident.map(|x| x.format(MYSQL_DATE_FORMAT).to_string()) };
+                        attr_quote = quote! { (self.#field_ident as u8) };
+                        fqs.append_all(quote! { #string_name => &#attr_quote, });
+                        handled_by_attribute = true;
+                        break;
                     }
-                }
-                else
-                {
-                    if field_type.to_token_stream().to_string().contains("DateTime")
+                    "rs_spl" =>
                     {
-                        attr_quote = quote! { self.#field_ident.format(MYSQL_DATE_FORMAT).to_string() };
-                    }
-                }
-
-                let mut handled_by_attribute = false;
-
-                for a in &f.attrs
-                {
-                    match a.path.segments.last().expect("5").ident.to_string().as_str()
-                    {
-                        "rs_e" =>
+                        if let Ok(params) = a.parse_args_with(AttrParams::parse)
                         {
-                            attr_quote = quote! { (self.#field_ident as u8) };
-                            fqs.push(quote! { #string_name => &#attr_quote, }.into());
+                            for lf in params.0
+                            {
+                                let string_quote = format!("{}_{}", string_name, lf.value());
+                                let field_name = format_ident!("{}", lf.value());
+                                attr_quote = quote! { self.#field_ident.#field_name };
+
+                                fqs.append_all(quote! { #string_quote => &#attr_quote (), });
+                            }
                             handled_by_attribute = true;
                             break;
                         }
-                        "rs_spl" =>
-                        {
-                            if let Ok(params) = a.parse_args_with(AttrParams::parse)
-                            {
-                                for lf in params.0
-                                {
-                                    let string_quote = format!("{}_{}", string_name, lf.value());
-                                    let field_name = format_ident!("{}", lf.value());
-                                    attr_quote = quote! { self.#field_ident.#field_name };
-
-                                    fqs.push(quote! { #string_quote => &#attr_quote (), }.into());
-                                }
-                                handled_by_attribute = true;
-                                break;
-                            }
-                        }
-                        _ => continue
                     }
+                    _ => continue
                 }
-                if !handled_by_attribute
-                {
-                    fqs.push(quote! { #string_name => &#attr_quote, }.into());
-                }
+            }
+            if !handled_by_attribute
+            {
+                fqs.append_all(quote! { #string_name => &#attr_quote, });
             }
         }
     }
