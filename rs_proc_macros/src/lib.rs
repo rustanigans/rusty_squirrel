@@ -43,7 +43,7 @@ pub fn derive(input: TokenStream) -> TokenStream
                                  .iter()
                                  .filter(|x| x.path.is_ident("rs_view"))
                                  .last()
-                                 .expect("1")
+                                 .unwrap()
                                  .parse_args_with(ViewAttributeOptions::parse)
         {
             Ok(x) => x,

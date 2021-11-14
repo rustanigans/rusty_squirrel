@@ -34,7 +34,7 @@ impl<'a> ToTokens for ImplFromRow<'a>
     fn to_tokens(&self, tokens: &mut TS2)
     {
         let struct_name = &self.0.name;
-        let r = fetch::from_row_field_quotes(self.0.data_struct).expect("1a");
+        let r = fetch::from_row_field_quotes(self.0.data_struct).unwrap();
         let content = quote! {
              impl mysql::prelude::FromRow for #struct_name
             {
@@ -61,7 +61,7 @@ impl<'a> ToTokens for ImplUpdatable<'a>
         if self.0.attr_options.impl_table
         {
             let struct_name = &self.0.name;
-            let r = fetch::to_params_field_quotes(self.0.data_struct).expect("1b");
+            let r = fetch::to_params_field_quotes(self.0.data_struct).unwrap();
             let content = quote! {
                 impl rusty_squirrel::traits::Updatable for #struct_name
                 {
