@@ -95,6 +95,10 @@ pub(crate) fn check_and_get_inner<'a>(outer_type: &str, ty: &'a syn::Type) -> st
                 None
             }
         }
+        else
+        {
+            None
+        }
     }
     else
     {
