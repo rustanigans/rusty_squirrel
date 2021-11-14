@@ -81,23 +81,25 @@ pub(crate) fn check_and_get_inner<'a>(outer_type: &str, ty: &'a syn::Type) -> st
     {
         if p.path.segments.len() < 1 || p.path.segments[0].ident != outer_type
         {
-            return None;
+            None
         }
-
-        if let syn::PathArguments::AngleBracketed(ref abga) = p.path.segments[0].arguments
+        else if let syn::PathArguments::AngleBracketed(ref abga) = p.path.segments[0].arguments
         {
             if let Some(syn::GenericArgument::Type(ref t)) = abga.args.first()
             {
-                return Some(t);
+                Some(t)
             }
             else
             {
                 println!("no args");
-                return None;
+                None
             }
         }
     }
-    None
+    else
+    {
+        None
+    }
 }
 
 pub fn to_params_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
