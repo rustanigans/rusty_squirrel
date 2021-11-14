@@ -128,12 +128,9 @@ pub fn to_params_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
                         quote! { self.#field_ident.map(|x| x.format(rusty_squirrel::MYSQL_DATE_FORMAT).to_string()) };
                 }
             }
-            else
+            else if field_type.to_token_stream().to_string().contains("DateTime")
             {
-                if field_type.to_token_stream().to_string().contains("DateTime")
-                {
-                    attr_quote = quote! { self.#field_ident.format(rusty_squirrel::MYSQL_DATE_FORMAT).to_string() };
-                }
+                attr_quote = quote! { self.#field_ident.format(rusty_squirrel::MYSQL_DATE_FORMAT).to_string() };
             }
 
             let mut handled_by_attribute = false;
