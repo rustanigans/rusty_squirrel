@@ -38,12 +38,9 @@ pub fn from_row_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
                 attr_quote = quote! { row.take_date_time_option(#string_name)?};
             }
         }
-        else
+        else if field_type.to_token_stream().to_string().contains("DateTime")
         {
-            if field_type.to_token_stream().to_string().contains("DateTime")
-            {
-                attr_quote = quote! { row.take_date_time(#string_name)?};
-            }
+            attr_quote = quote! { row.take_date_time(#string_name)?};
         }
 
         for a in &f.attrs
@@ -89,15 +86,14 @@ pub(crate) fn check_and_get_inner<'a>(outer_type: &str, ty: &'a syn::Type) -> st
 
         if let syn::PathArguments::AngleBracketed(ref abga) = p.path.segments[0].arguments
         {
-            if abga.args.len() == 0
+            if let Some(syn::GenericArgument::Type(ref t)) = abga.args.first()
+            {
+                return Some(t);
+            }
+            else
             {
                 println!("no args");
                 return None;
-            }
-            let inner1 = abga.args.first().unwrap();
-            if let syn::GenericArgument::Type(ref t) = inner1
-            {
-                return Some(t);
             }
         }
     }
@@ -142,7 +138,7 @@ pub fn to_params_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
 
             for a in &f.attrs
             {
-                match a.path.segments.last().unwrap().ident.to_string().as_str()
+                match a.path.get_ident().map(|x| x.to_string()).unwrap_or_default().as_str()
                 {
                     "rs_e" =>
                     {
