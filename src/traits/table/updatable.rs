@@ -4,10 +4,12 @@ use mysql::Params;
 pub trait Updatable: Table
 {
     fn to_params(&self) -> mysql::Params;
+
     fn insert_into_statement(expression: &str) -> String
     {
         format!("INSERT INTO {} {}", Self::TABLE_NAME, expression)
     }
+
     fn update_column_by_id_statement(id: u64, mut items: Vec<(String, String)>) -> String
     {
         let updates = items.drain(..)

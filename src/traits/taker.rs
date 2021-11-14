@@ -12,6 +12,7 @@ pub trait Taker: Send + Sync
     fn take_date_time(&mut self, name: &str) -> Result<DateTime<Utc>, FromRowError>;
     fn take_date_time_option(&mut self, name: &str) -> Result<Option<DateTime<Utc>>, FromRowError>;
 }
+
 impl Taker for Row
 {
     fn take_hinted<T: FromValue>(&mut self, name: &str) -> Result<T, FromRowError>

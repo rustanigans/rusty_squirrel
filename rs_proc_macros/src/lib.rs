@@ -5,11 +5,7 @@ use crate::{enum_view::{EnumViewOptions, ImplU8},
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TS2;
 use quote::*;
-use syn::{parse::{Parse, ParseStream},
-          punctuated::Punctuated,
-          spanned::Spanned,
-          token::Comma,
-          *};
+use syn::{parse::*, punctuated::Punctuated, spanned::Spanned, *};
 
 mod enum_view;
 mod fetch;
