@@ -16,10 +16,10 @@ impl<'a> ToTokens for ImplU8<'a>
         let enum_name = &self.0.name;
         let mut variant_idents = TS2::new();
 
-        for i in 0..self.0.variants.len()
+        for (index, _) in self.0.variants.iter().enumerate()
         {
-            let variant_ident = &self.0.variants[i].clone().ident;
-            let number = i as u8;
+            let variant_ident = &self.0.variants[index].ident;
+            let number = index as u8;
             variant_idents.append_all(quote! { #number => #enum_name::#variant_ident, });
         }
 

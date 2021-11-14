@@ -22,24 +22,18 @@ pub fn from_row_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
     for f in &ds.fields
     {
         let field_type = &f.ty;
-        let field_ident = &f.ident;
-        let string_name = field_ident.clone().expect("2").to_string().replace("r#", "");
+        let field_ident = &f.ident
+                            .as_ref()
+                            .ok_or_else(|| Error::new(f.ident.span(), "Expected ident on field"))?;
+        let string_name = field_ident.to_string().replace("r#", "");
 
         let mut attr_quote: TS2 = quote! { row.take_hinted(#string_name)?};
 
-        let mut is_option = false;
         let inner_type = check_and_get_inner("Option", field_type);
-        if inner_type.is_some()
-        {
-            is_option = true; // leaving this so we can do other optional types that also fit in the attribute category
-        }
 
-        if is_option
+        if let Some(inner_type) = inner_type
         {
-            if inner_type.expect("3")
-                         .to_token_stream()
-                         .to_string()
-                         .contains("DateTime")
+            if inner_type.to_token_stream().to_string().contains("DateTime")
             {
                 attr_quote = quote! { row.take_date_time_option(#string_name)?};
             }
@@ -54,7 +48,7 @@ pub fn from_row_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
 
         for a in &f.attrs
         {
-            match a.path.segments.last().expect("4").ident.to_string().as_str()
+            match a.path.segments.last().unwrap().ident.to_string().as_str()
             {
                 "rs_e" =>
                 {
@@ -100,7 +94,7 @@ pub(crate) fn check_and_get_inner<'a>(outer_type: &str, ty: &'a syn::Type) -> st
                 println!("no args");
                 return None;
             }
-            let inner1 = abga.args.first().expect("5");
+            let inner1 = abga.args.first().unwrap();
             if let syn::GenericArgument::Type(ref t) = inner1
             {
                 return Some(t);
@@ -117,26 +111,20 @@ pub fn to_params_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
     for f in &ds.fields
     {
         let field_type = &f.ty;
-        let field_ident = &f.ident;
-        let string_name = field_ident.clone().expect("6").to_string().replace("r#", "");
+        let field_ident = &f.ident
+                            .as_ref()
+                            .ok_or_else(|| Error::new(f.ident.span(), "Expected ident on field"))?;
+        let string_name = field_ident.to_string().replace("r#", "");
 
         if string_name != "id"
         {
             let mut attr_quote: TS2 = quote! { self.#field_ident};
 
-            let mut is_option = false;
             let inner_type = check_and_get_inner("Option", field_type);
-            if inner_type.is_some()
-            {
-                is_option = true; // leaving this so we can do other optional types that also fit in the attribute category
-            }
 
-            if is_option
+            if let Some(inner_type) = inner_type
             {
-                if inner_type.expect("7")
-                             .to_token_stream()
-                             .to_string()
-                             .contains("DateTime")
+                if inner_type.to_token_stream().to_string().contains("DateTime")
                 {
                     attr_quote =
                         quote! { self.#field_ident.map(|x| x.format(rusty_squirrel::MYSQL_DATE_FORMAT).to_string()) };
@@ -154,7 +142,7 @@ pub fn to_params_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
 
             for a in &f.attrs
             {
-                match a.path.segments.last().expect("8").ident.to_string().as_str()
+                match a.path.segments.last().unwrap().ident.to_string().as_str()
                 {
                     "rs_e" =>
                     {
