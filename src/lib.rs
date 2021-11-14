@@ -28,3 +28,4 @@ pub mod macros
 }
 
 pub const MYSQL_DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
+pub use rs_proc_macros::{RustyEnum, RustyParams};
