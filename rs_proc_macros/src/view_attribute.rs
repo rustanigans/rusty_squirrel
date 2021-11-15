@@ -26,7 +26,7 @@ impl Parse for ViewAttributeOptions
         {
             None
         };
-
+        input.parse::<Token![,]>().ok();
         let attr = if input.parse::<custom_key_words::attr>().is_ok()
         {
             let Parens { content, .. } = parse_parens(input)?;
