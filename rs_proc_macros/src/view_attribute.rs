@@ -5,7 +5,8 @@ pub struct ViewAttributeOptions
 {
     pub table_name: LitStr,
     pub impl_table: bool,
-    pub file_name:  Option<LitStr>
+    pub file_name:  Option<LitStr>,
+    pub attr:       Option<TS2>
 }
 
 impl Parse for ViewAttributeOptions
@@ -26,8 +27,19 @@ impl Parse for ViewAttributeOptions
             None
         };
 
+        let attr = if input.parse::<custom_key_words::attr>().is_ok()
+        {
+            let Parens { content, .. } = parse_parens(input)?;
+            Some(content.parse()?)
+        }
+        else
+        {
+            None
+        };
+
         Ok(Self { table_name,
                   impl_table,
-                  file_name })
+                  file_name,
+                  attr })
     }
 }

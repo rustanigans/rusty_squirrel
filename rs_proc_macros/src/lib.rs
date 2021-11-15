@@ -15,6 +15,7 @@ mod view_attribute;
 mod custom_key_words
 {
     syn::custom_keyword!(table);
+    syn::custom_keyword!(attr);
 }
 
 // Helper macro to spit out error in main derive fn
@@ -63,7 +64,11 @@ pub fn derive(input: TokenStream) -> TokenStream
         use convert_case::{Case, Casing};
         let mod_name: Ident = format_ident!("impl_{}", opts.name.to_string().to_case(Case::Snake));
 
+        let custom_attr = &main_attr.attr;
+
         let extended = quote! {
+
+            #[#custom_attr]
             mod #mod_name
             {
                 use super::*;
