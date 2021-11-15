@@ -6,9 +6,10 @@ edition = "2018"
 
 
 [dependencies]
-mysql = "21.0.2"
-anyhow = "1.0.44"
-# date/time(required)
-#chrono = { version = "0.4.19", features = ["serde"] }
+mysql = { version = "21.0.2", optional = true }
+anyhow = { version = "1.0.44", optional = true }
+rs_proc_macros = { path = "./rs_proc_macros", optional = true }
 
-rs_proc_macros = { path = "./rs_proc_macros" }
+[features]
+default = ["mysql", "anyhow", "rs_proc_macros"]
+macro_only = ["rs_proc_macros"]
