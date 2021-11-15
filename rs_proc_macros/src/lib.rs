@@ -64,7 +64,7 @@ pub fn derive(input: TokenStream) -> TokenStream
         use convert_case::{Case, Casing};
         let mod_name: Ident = format_ident!("impl_{}", opts.name.to_string().to_case(Case::Snake));
 
-        let custom_attr = &main_attr.attr;
+        let custom_attr = main_attr.attr.clone().unwrap_or_else(|| quote! {});
 
         let extended = quote! {
 
