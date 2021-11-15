@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 mysql = { version = "21.0.2", optional = true }
-anyhow = { version = "1.0.44", optional = true }
+anyhow = { version = "1.0.44", optional = true}
 rs_proc_macros = { path = "./rs_proc_macros", optional = true }
 
 [features]
