@@ -68,13 +68,13 @@ fn check_update_result(result: mysql::error::Result<()>, conn: &mut PooledConn) 
         Ok(_) =>
         {
             let aff_rows = conn.affected_rows();
-            if aff_rows == 1
+            if aff_rows <= 1
             {
                 Ok(())
             }
             else
             {
-                bail!("Error - Failed To Update Item")
+                bail!("Error - Failed To Update Item - Updated rows greater than 1!")
             }
         }
         Err(e) =>
