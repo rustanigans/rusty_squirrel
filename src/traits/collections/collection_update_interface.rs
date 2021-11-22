@@ -3,7 +3,7 @@ use crate::traits::Updatable;
 
 pub trait CollectionUpdateInterface: GetDatabase
 {
-    fn update_column_by_id<T: Updatable>(&self, id: u64, changes: Vec<(String, String)>) -> Result<()>
+    fn update_column_by_id<T: Updatable>(&self, id: u64, changes: Vec<(String, String)>) -> Result<bool>
     {
         let mut conn = self.get_connection()?;
         let update_column_by_id_statement = T::update_column_by_id_statement(id, changes);
@@ -14,7 +14,7 @@ pub trait CollectionUpdateInterface: GetDatabase
         self.check_query_result(result, &update_column_by_id_statement, conn)
     }
 
-    fn update_item_by_id<T: Updatable>(&self, id: u64, item: &T) -> Result<()>
+    fn update_item_by_id<T: Updatable>(&self, id: u64, item: &T) -> Result<bool>
     {
         let mut conn = self.get_connection()?;
 
@@ -30,7 +30,7 @@ pub trait CollectionUpdateInterface: GetDatabase
                                         result: mysql::error::Result<Option<T>>,
                                         stmt: &str,
                                         mut conn: PooledConn)
-                                        -> Result<()>
+                                        -> Result<bool>
     {
         match result
         {
@@ -61,20 +61,18 @@ impl<DB: GetDatabase> CollectionUpdateInterface for DB
 {
 }
 
-fn check_update_result(result: mysql::error::Result<()>, conn: &mut PooledConn) -> Result<()>
+fn check_update_result(result: mysql::error::Result<()>, conn: &mut PooledConn) -> Result<bool>
 {
     match result
     {
         Ok(_) =>
         {
             let aff_rows = conn.affected_rows();
-            if aff_rows <= 1
+            match aff_rows
             {
-                Ok(())
-            }
-            else
-            {
-                bail!("Error - Failed To Update Item - Updated rows greater than 1!")
+                0 => Ok(false),
+                1 => Ok(true),
+                _ => bail!("Error - Failed To Update Item - Updated rows greater than 1!")
             }
         }
         Err(e) =>
