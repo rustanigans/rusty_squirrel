@@ -35,16 +35,26 @@ impl<'a> ToTokens for ImplFromRow<'a>
     fn to_tokens(&self, tokens: &mut TS2)
     {
         let struct_name = &self.0.name;
-        let r = fetch::from_row_field_quotes(self.0.data_struct).unwrap();
+
+        let r = if let Some(wrapped_struct) = &self.0.attr_options.wrapped
+        {
+            quote! {
+                ( #wrapped_struct ::from_row_opt(row)?)
+            }
+        }
+        else
+        {
+            let result = fetch::from_row_field_quotes(self.0.data_struct).unwrap();
+            quote! { { #result } }
+        };
         let content = quote! {
              impl mysql::prelude::FromRow for #struct_name
             {
                 fn from_row_opt<'a>(mut row: mysql::Row) -> std::result::Result<Self, mysql::FromRowError> where Self: Sized
                 {
                     Ok(Self
-                    {
                         #r
-                    })
+                    )
                 }
             }
         };

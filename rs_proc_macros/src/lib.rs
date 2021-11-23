@@ -12,11 +12,12 @@ mod fetch;
 mod struct_view;
 mod view_attribute;
 // Custom Keywords
-mod custom_key_words
+mod kw
 {
     syn::custom_keyword!(table);
     syn::custom_keyword!(stored_view);
     syn::custom_keyword!(attr);
+    syn::custom_keyword!(wrapped);
 }
 
 // Helper macro to spit out error in main derive fn
