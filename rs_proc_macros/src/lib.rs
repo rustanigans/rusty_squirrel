@@ -1,6 +1,6 @@
 #![allow(clippy::suspicious_else_formatting)]
 use crate::{enum_view::{EnumViewOptions, ImplU8},
-            struct_view::{ImplFromRow, ImplTable, ImplTableCreate, ImplUpdatable, ImplView, StructViewOptions},
+            struct_view::{ImplFromRow, ImplStoredView, ImplTable, ImplUpdatable, ImplView, StructViewOptions},
             view_attribute::ViewAttributeOptions};
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TS2;
@@ -15,6 +15,7 @@ mod view_attribute;
 mod custom_key_words
 {
     syn::custom_keyword!(table);
+    syn::custom_keyword!(stored_view);
     syn::custom_keyword!(attr);
 }
 
@@ -58,8 +59,8 @@ pub fn derive(input: TokenStream) -> TokenStream
         let impl_view = ImplView(&opts);
         let impl_from_row = ImplFromRow(&opts);
         let impl_table = ImplTable(&opts);
-        let impl_table_create = ImplTableCreate(&opts);
         let impl_updatable = ImplUpdatable(&opts);
+        let impl_stored_view = ImplStoredView(&opts);
 
         use convert_case::{Case, Casing};
         let mod_name: Ident = format_ident!("impl_{}", opts.name.to_string().to_case(Case::Snake));
@@ -83,9 +84,9 @@ pub fn derive(input: TokenStream) -> TokenStream
 
                 #impl_table
 
-                #impl_table_create
-
                 #impl_updatable
+
+                #impl_stored_view
             };
         };
         //println!("{}", extended);

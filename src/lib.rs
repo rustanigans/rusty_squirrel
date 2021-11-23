@@ -17,12 +17,14 @@ mod structs;
 pub mod traits
 {
     pub use collections::*;
+    pub use db_object::*;
     pub use get_database::*;
     pub use table::*;
     pub use taker::*;
     pub use view::*;
 
     mod collections;
+    mod db_object;
     mod get_database;
     mod table;
     mod taker;

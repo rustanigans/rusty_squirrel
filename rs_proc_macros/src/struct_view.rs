@@ -1,4 +1,5 @@
 use super::*;
+use crate::view_attribute::ImplType;
 
 // Storage struct for everything we need in each impl
 pub struct StructViewOptions<'a>
@@ -58,22 +59,24 @@ impl<'a> ToTokens for ImplUpdatable<'a>
 {
     fn to_tokens(&self, tokens: &mut TS2)
     {
-        if self.0.attr_options.impl_table
+        if self.0.attr_options.impl_type != ImplType::Table
         {
-            let struct_name = &self.0.name;
-            let r = fetch::to_params_field_quotes(self.0.data_struct).unwrap();
-            let content = quote! {
-                impl rusty_squirrel::traits::Updatable for #struct_name
-                {
-                    fn to_params(&self) -> mysql::Params
-                    {
-                        use mysql::params;
-                        params!(#r)
-                    }
-                }
-            };
-            tokens.append_all(content);
+            return;
         }
+
+        let struct_name = &self.0.name;
+        let r = fetch::to_params_field_quotes(self.0.data_struct).unwrap();
+        let content = quote! {
+            impl rusty_squirrel::traits::Updatable for #struct_name
+            {
+                fn to_params(&self) -> mysql::Params
+                {
+                    use mysql::params;
+                    params!(#r)
+                }
+            }
+        };
+        tokens.append_all(content);
     }
 }
 
@@ -84,34 +87,62 @@ impl<'a> ToTokens for ImplTable<'a>
 {
     fn to_tokens(&self, tokens: &mut TS2)
     {
-        if self.0.attr_options.impl_table
+        if self.0.attr_options.impl_type != ImplType::Table
+        {
+            return;
+        }
+        if let Some(file_name) = &self.0.attr_options.file_name
         {
             let struct_name = &self.0.name;
             tokens.append_all(quote! {
                         impl rusty_squirrel::traits::Table for #struct_name
                         {}
+                        impl rusty_squirrel::traits::DbObject for #struct_name
+                        {
+                            fn create_statement() -> String
+                            {
+                                use rusty_squirrel::traits::View;
+                                include_str!(#file_name).replace("TABLE_NAME", Self::TABLE_NAME)
+                            }
+
+                            fn drop_statement() -> String
+                            {
+                                use rusty_squirrel::traits::View;
+                                format!("DROP TABLE {};", Self::TABLE_NAME)
+                            }
+                        }
                   });
         }
     }
 }
 
-// Make TableCreate Impl
-pub struct ImplTableCreate<'a>(pub &'a StructViewOptions<'a>);
+// Make Stored View Impl
+pub struct ImplStoredView<'a>(pub &'a StructViewOptions<'a>);
 
-impl<'a> ToTokens for ImplTableCreate<'a>
+impl<'a> ToTokens for ImplStoredView<'a>
 {
     fn to_tokens(&self, tokens: &mut TS2)
     {
+        if self.0.attr_options.impl_type != ImplType::StoredView
+        {
+            return;
+        }
+
         if let Some(file_name) = &self.0.attr_options.file_name
         {
             let struct_name = &self.0.name;
             tokens.append_all(quote! {
-                        impl rusty_squirrel::traits::TableCreate for #struct_name
+                        impl rusty_squirrel::traits::DbObject for #struct_name
                         {
-                            fn create_table_statement() -> String
+                             fn create_statement() -> String
                             {
-                                use rusty_squirrel::traits::Table;
-                                include_str!(#file_name).replace("TABLE_NAME", Self::TABLE_NAME)
+                                include_str!(#file_name).to_string()
+                            }
+
+                            fn drop_statement() -> String
+                            {
+                                use rusty_squirrel::traits::View;
+                                format!("DROP VIEW {};", Self::TABLE_NAME)
                             }
                         }
                   });
