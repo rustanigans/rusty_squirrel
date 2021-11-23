@@ -118,7 +118,7 @@ impl<'a> ToTokens for ImplTable<'a>
                             fn drop_statement() -> String
                             {
                                 use rusty_squirrel::traits::View;
-                                format!("DROP TABLE {};", Self::TABLE_NAME)
+                                format!("DROP TABLE `{}`;", Self::TABLE_NAME)
                             }
                         }
                   });
@@ -152,7 +152,7 @@ impl<'a> ToTokens for ImplStoredView<'a>
                             fn drop_statement() -> String
                             {
                                 use rusty_squirrel::traits::View;
-                                format!("DROP VIEW {};", Self::TABLE_NAME)
+                                format!("DROP VIEW `{}`;", Self::TABLE_NAME)
                             }
                         }
                   });
