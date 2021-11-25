@@ -15,7 +15,7 @@ pub trait View: FromRow + Send + Sync
 
     fn from_clause() -> String
     {
-        Self::TABLE_NAME.to_string()
+        format!("`{}`", Self::TABLE_NAME)
     }
 
     fn query_statement() -> String

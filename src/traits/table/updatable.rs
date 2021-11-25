@@ -7,7 +7,7 @@ pub trait Updatable: Table
 
     fn insert_into_statement(expression: &str) -> String
     {
-        format!("INSERT INTO {} {}", Self::TABLE_NAME, expression)
+        format!("INSERT INTO `{}` {}", Self::TABLE_NAME, expression)
     }
 
     fn update_column_by_id_statement(id: u64, mut items: Vec<(String, String)>) -> String
@@ -26,12 +26,12 @@ pub trait Updatable: Table
                            .collect::<Vec<String>>()
                            .join(", ");
 
-        format!("UPDATE {} SET {} WHERE id = {}", Self::TABLE_NAME, &updates, id)
+        format!("UPDATE `{}` SET {} WHERE id = {}", Self::TABLE_NAME, &updates, id)
     }
 
     fn update_by_id_statement(id: u64, expression: &str) -> String
     {
-        format!("UPDATE {} SET {} WHERE id = {}", Self::TABLE_NAME, expression, id)
+        format!("UPDATE `{}` SET {} WHERE id = {}", Self::TABLE_NAME, expression, id)
     }
 
     fn generate_update_by_id_statement(&self, id: u64) -> String
