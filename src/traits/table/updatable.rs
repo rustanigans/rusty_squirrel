@@ -20,7 +20,7 @@ pub trait Updatable: Table
                                }
                                else
                                {
-                                   format!("`{}` = '{}'", x.0, x.1)
+                                   format!("`{}` = '{}'", x.0, x.1.replace("'", "\\'"))
                                }
                            })
                            .collect::<Vec<String>>()
