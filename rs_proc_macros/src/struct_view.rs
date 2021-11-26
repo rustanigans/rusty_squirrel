@@ -16,8 +16,12 @@ impl<'a> ToTokens for ImplView<'a>
 {
     fn to_tokens(&self, tokens: &mut TS2)
     {
+        if self.0.attr_options.table_name.is_none()
+        {
+            return;
+        }
         let struct_name = &self.0.name;
-        let table_name = &self.0.attr_options.table_name;
+        let table_name = &self.0.attr_options.table_name.as_ref().unwrap();
         tokens.append_all(quote! {
                   impl View for #struct_name
                   {

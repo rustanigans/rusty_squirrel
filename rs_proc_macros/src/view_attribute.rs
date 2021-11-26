@@ -11,7 +11,7 @@ pub enum ImplType
 
 pub struct ViewAttributeOptions
 {
-    pub table_name: LitStr,
+    pub table_name: Option<LitStr>,
     pub impl_type:  ImplType,
     pub file_name:  Option<LitStr>,
     pub attr:       Option<TS2>,
@@ -22,7 +22,7 @@ impl Parse for ViewAttributeOptions
 {
     fn parse(input: ParseStream) -> Result<Self>
     {
-        let table_name = input.parse()?;
+        let table_name = input.parse::<LitStr>().ok();
         input.parse::<Token![,]>().ok();
         let impl_table = input.parse::<kw::table>().is_ok();
         let impl_stored_view = input.parse::<kw::stored_view>().is_ok();
