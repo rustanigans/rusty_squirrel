@@ -3,6 +3,9 @@ use mysql::prelude::Queryable;
 
 pub trait CollectionViewInterface: GetDatabase
 {
+    /// ```
+    /// expression = &format!("`field_name` = '{}'", value);
+    /// ```
     fn query_by_expression<T: View>(&self, expression: &str) -> Result<Vec<T>>
     {
         let result = self.get_connection()?
@@ -57,6 +60,9 @@ pub trait CollectionViewInterface: GetDatabase
         conn.query_first(expression_statement).map_err(|e| e.into())
     }
 
+    /// ```
+    /// expression = &format!("`field_name` = '{}'", value);
+    /// ```
     fn query_first_by_expression<T: View>(&self, expression: &str) -> Result<Option<T>>
     {
         let mut conn = self.get_connection()?;

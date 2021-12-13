@@ -11,6 +11,9 @@ pub trait CollectionDeleteInterface: GetDatabase
         check_delete_result(result, &conn)
     }
 
+    /// ```
+    /// expression = &format!("`field_name` = '{}'", value);
+    /// ```
     fn delete_by_expression<T: Table>(&self, expression: &str) -> Result<()>
     {
         let mut conn = self.get_connection()?;

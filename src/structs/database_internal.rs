@@ -3,6 +3,9 @@ use crate::traits::GetDatabase;
 use mysql::{prelude::Queryable, Conn, Opts};
 use std::sync::Arc;
 
+/// trait DbObjectManagement is applied
+/// create_object and drop_object fn are available
+/// for creating and dropping tables
 #[derive(Clone)]
 pub struct SquirrelDatabase
 {
@@ -58,6 +61,7 @@ impl SquirrelDatabase
                   connection_pool: Pool::new_manual(config.min_connections, config.max_connections, options1)? })
     }
 
+    /// Drop (delete) database
     pub fn drop_schema(self) -> Result<()>
     {
         Ok(self.connection_pool
