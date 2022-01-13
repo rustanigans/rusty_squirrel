@@ -21,6 +21,12 @@ pub fn from_row_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
 
     for f in &ds.fields
     {
+        if f.attrs
+            .iter()
+            .any(|x| x.path.segments.last().unwrap().ident.to_string() == "rs_ignore")
+        {
+            continue;
+        }
         let field_type = &f.ty;
         let field_ident = &f.ident
                             .as_ref()
