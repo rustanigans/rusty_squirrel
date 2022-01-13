@@ -25,6 +25,7 @@ pub fn from_row_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
         let field_ident = &f.ident
                             .as_ref()
                             .ok_or_else(|| Error::new(f.ident.span(), "Expected ident on field"))?;
+
         let string_name = field_ident.to_string().replace("r#", "");
 
         let mut attr_quote: TS2 = quote! { row.take_hinted(#string_name)?};
@@ -66,6 +67,11 @@ pub fn from_row_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
                         attr_quote = quote! { #field_type::new(#(row.take_hinted(#lit_fields)?,)*) };
                         break;
                     }
+                }
+                "rs_ignore" =>
+                {
+                    attr_quote = quote! { Default::default() };
+                    break;
                 }
                 _ => continue
             }
@@ -112,10 +118,18 @@ pub fn to_params_field_quotes(ds: &DataStruct) -> syn::Result<TS2>
 
     for f in &ds.fields
     {
+        if f.attrs
+            .iter()
+            .any(|x| x.path.get_ident().is_some() && x.path.get_ident().unwrap().to_string() == "rs_ignore")
+        {
+            continue;
+        }
+
         let field_type = &f.ty;
         let field_ident = &f.ident
                             .as_ref()
                             .ok_or_else(|| Error::new(f.ident.span(), "Expected ident on field"))?;
+
         let string_name = field_ident.to_string().replace("r#", "");
 
         if string_name != "id"

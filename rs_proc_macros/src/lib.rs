@@ -30,7 +30,7 @@ macro_rules! derive_error {
     };
 }
 
-#[proc_macro_derive(RustyParams, attributes(rs_e, rs_spl, rs_view))]
+#[proc_macro_derive(RustyParams, attributes(rs_e, rs_spl, rs_view, rs_ignore))]
 pub fn derive(input: TokenStream) -> TokenStream
 {
     let ast: DeriveInput = parse_macro_input!(input as DeriveInput);
